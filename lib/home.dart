@@ -1,10 +1,7 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'add.dart';
-import 'show.dart';
-// import 'search.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -19,21 +16,22 @@ class _HomePageState extends State<HomePage> {
   //   showSearch(context: context, delegate: DataSearch());
   // }
 
-  _openWhats(whatsNumber) async {
+  _openWhats(whatsNumber, context) async {
       final whatsUrl = "https://wa.me/$whatsNumber";
 
       if(await canLaunch(whatsUrl)) {
         await launch(whatsUrl);
       } else {
-        throw "Cant open whatsapp";
+        Scaffold.of(context).showSnackBar(SnackBar(content: Text("Não foi possível abrir este número.")));
       }
     }
 
   Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
 
     return GestureDetector(
-      onTap: () => _openWhats(document['number']),
+      onTap: () => _openWhats(document['number'], context),
       child: Container(
+        margin: EdgeInsets.only(bottom: 15.0),
         child: Padding(
           padding: EdgeInsets.all(15.0),
           child: Column(
@@ -50,7 +48,7 @@ class _HomePageState extends State<HomePage> {
               Padding(padding: EdgeInsets.only(top: 5.0)),
 
               Text(
-                "${document['startPlace']}",
+                document['startPlace'],
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16.0,

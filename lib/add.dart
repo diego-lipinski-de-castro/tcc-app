@@ -15,9 +15,6 @@ class _AddPageState extends State<AddPage> {
 
   final eventNameInput = TextEditingController();
   final startPlaceInput = TextEditingController();
-  final startDateInput = TextEditingController();
-  final backDateInput = TextEditingController();
-  final valueInput = TextEditingController();
   final numberInput = TextEditingController();
 
   void _save() {
@@ -30,9 +27,6 @@ class _AddPageState extends State<AddPage> {
           .setData({
             'eventName': eventNameInput.text,
             'startPlace': startPlaceInput.text,
-            'startDate': startDateInput.text,
-            'backDate': backDateInput.text,
-            'value': valueInput.text,
             'number': numberInput.text,
             'created_at': DateTime.now().millisecondsSinceEpoch
           })
@@ -79,57 +73,6 @@ class _AddPageState extends State<AddPage> {
               validator: (value) {
                 if (value.isEmpty) {
                   return 'Insira o local de saída';
-                }
-              },
-            ),
-
-            Padding(
-              padding: EdgeInsets.only(bottom: 25.0),
-            ),
-
-            TextFormField(
-              controller: startDateInput,
-              keyboardType: TextInputType.datetime,
-              decoration: InputDecoration(
-                labelText: 'Data de saída'
-              ),
-              validator: (value) {
-                if (value.isEmpty) {
-                  return 'Insira a data de saída';
-                }
-              },
-            ),
-
-            Padding(
-              padding: EdgeInsets.only(bottom: 25.0),
-            ),
-
-            TextFormField(
-              controller: backDateInput,
-              keyboardType: TextInputType.datetime,
-              decoration: InputDecoration(
-                labelText: 'Data de volta'
-              ),
-              validator: (value) {
-                if (value.isEmpty) {
-                  return 'Insira a data de volta';
-                }
-              },
-            ),
-
-            Padding(
-              padding: EdgeInsets.only(bottom: 25.0),
-            ),
-
-            TextFormField(
-              controller: valueInput,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Valor'
-              ),
-              validator: (value) {
-                if (value.isEmpty) {
-                  return 'Insira o valor';
                 }
               },
             ),
