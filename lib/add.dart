@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'home.dart';
 
 class AddPage extends StatefulWidget {
   AddPage({Key key}) : super(key: key);
@@ -19,7 +18,7 @@ class _AddPageState extends State<AddPage> {
 
   void _save() {
     if(!_formKey.currentState.validate()) {
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Wrong!')));
+      // Scaffold.of(context).showSnackBar(SnackBar(content: Text('Wrong!')));
     } else {
       Firestore.instance
           .collection('travels')

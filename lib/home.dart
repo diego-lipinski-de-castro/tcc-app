@@ -81,7 +81,7 @@ class _HomePageState extends State<HomePage> {
         // ],
       ),
       body: Padding(
-        padding: EdgeInsets.all(15.0),
+        padding: EdgeInsets.only(top: 15.0, left: 15.0, right: 15.0, bottom: 80.0),
         child: StreamBuilder(
           stream: Firestore.instance.collection('travels').snapshots(),
           builder: (context, snapshot) {
