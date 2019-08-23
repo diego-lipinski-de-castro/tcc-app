@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'add.dart';
+import 'search.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -12,9 +13,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  // void _displaySearch() {
-  //   showSearch(context: context, delegate: DataSearch());
-  // }
+  void _displaySearch() {
+    showSearch(context: context, delegate: DataSearch());
+  }
 
   _openWhats(whatsNumber, context) async {
       final whatsUrl = "https://wa.me/$whatsNumber";
@@ -73,12 +74,12 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("Início"),
         centerTitle: false,
-        // actions: <Widget>[
-        //   IconButton(
-        //     icon: Icon(Icons.search),
-        //     onPressed: _displaySearch,  
-        //   )
-        // ],
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: _displaySearch,  
+          )
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.only(top: 15.0, left: 15.0, right: 15.0, bottom: 80.0),

@@ -1,13 +1,41 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'show.dart';
 
 class DataSearch extends SearchDelegate<String> {
 
-  final fakeData = ["1","2","3","4","5"];
+  var results = [];
+  var suggestions = [];
 
-  final results = [];
+  @override
+  void showResults(BuildContext context) async {
+    super.showResults(context);
+    await Firestore.instance
+          .collection('recent_search')
+          .document()
+          .setData({
+            'text': query,
+            'at': DateTime.now().millisecondsSinceEpoch
+          });
 
-  final recentQueries = ["1","2","3"];
+    var search = await Firestore.instance.collection('travels').where('eventName', isGreaterThanOrEqualTo: query).getDocuments();
+
+    search.documents.forEach((doc) {
+      results.add(doc.data);
+    });
+  }
+
+  @override
+  void showSuggestions(BuildContext context) async {
+    super.showSuggestions(context);
+    var recent = await Firestore.instance.collection('recent_search').orderBy('at', descending: true).getDocuments();
+
+    recent.documents.forEach((doc) {
+      suggestions.add(doc.data);
+    });
+
+    print(suggestions);
+  }
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -36,33 +64,19 @@ class DataSearch extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    return null;
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    
-    final suggestionList = query.isEmpty
-      ? recentQueries
-      : fakeData.where((i) => i.startsWith(query)).toList();
-
     return ListView.builder(
       itemBuilder: (context, index) => ListTile(
-        onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => ShowPage()));  
-          // showResults(context);
-        },
         leading: Icon(Icons.local_bar),
         title: RichText(
           text:TextSpan(
-            text: suggestionList[index].substring(0, query.length),
+            text: results[index]['eventName'].substring(0, query.length),
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold
             ),
             children: [
               TextSpan(
-                text: suggestionList[index].substring(query.length),
+                text: results[index]['eventName'].substring(query.length),
                 style: TextStyle(
                   color: Colors.black
                 )
@@ -71,9 +85,39 @@ class DataSearch extends SearchDelegate<String> {
           )
         ),
       ),
-      itemCount: suggestionList.length,
+      itemCount: results.length,
     );
-
   }
 
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return ListView.builder(
+      itemBuilder: (context, index) {
+        return ListTile(
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => ShowPage()));  
+          },
+          leading: Icon(Icons.local_bar),
+          title: RichText(
+            text:TextSpan(
+              text: suggestions[index]['text'].substring(0, query.length),
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold
+              ),
+              children: [
+                TextSpan(
+                  text: suggestions[index]['text'].substring(query.length),
+                  style: TextStyle(
+                    color: Colors.black
+                  )
+                )
+              ]
+            )
+          ),
+        );
+      },
+      itemCount: suggestions.length,
+    );
+  }
 }
