@@ -1,8 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'add.dart';
-import 'search.dart';
+import 'services/auth.dart';
+import 'pages/addTravel.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -11,96 +10,112 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-
-  void _displaySearch() {
-    showSearch(context: context, delegate: DataSearch());
-  }
-
-  _openWhats(whatsNumber, context) async {
-      final whatsUrl = "https://wa.me/$whatsNumber";
-
-      if(await canLaunch(whatsUrl)) {
-        await launch(whatsUrl);
-      } else {
-        Scaffold.of(context).showSnackBar(SnackBar(content: Text("Não foi possível abrir este número.")));
-      }
-    }
-
-  Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
-
-    return GestureDetector(
-      onTap: () => _openWhats(document['number'], context),
-      child: Container(
-        margin: EdgeInsets.only(bottom: 15.0),
-        child: Padding(
-          padding: EdgeInsets.all(15.0),
-          child: Column(
-            children: <Widget>[
-              Text(
-                document['eventName'],
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold
-                ),
-              ),
-
-              Padding(padding: EdgeInsets.only(top: 5.0)),
-
-              Text(
-                document['startPlace'],
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.0,
-                  fontStyle: FontStyle.italic
-                ),
-              ),
-            ],
-          ),
-        ),
-        decoration: BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: Colors.deepPurple,
-          borderRadius: BorderRadius.circular(10.0)
-        ),
-      ),
-    );
-  }
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
+  AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Início"),
-        centerTitle: false,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: _displaySearch,  
-          )
-        ],
-      ),
-      body: Padding(
-        padding: EdgeInsets.only(top: 15.0, left: 15.0, right: 15.0, bottom: 80.0),
-        child: StreamBuilder(
-          stream: Firestore.instance.collection('travels').snapshots(),
-          builder: (context, snapshot) {
-            if(!snapshot.hasData) return Text("Carregando...");
-            return ListView.builder(
-              itemCount: snapshot.data.documents.length,
-              itemBuilder: (context, index) => _buildListItem(context, snapshot.data.documents[index]),
-            );
-          },
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AddPage()));
-        },
-        child: Icon(Icons.add),
-      ),
-    );
+    return StreamBuilder<FirebaseUser>(
+        stream: _authService.userStream,
+        builder: (context, snapshot) {
+          ConnectionState state = snapshot.connectionState;
+          bool loggedIn = _authService.user != null;
+
+          return Scaffold(
+            body: SingleChildScrollView(
+              physics: ClampingScrollPhysics(),
+              child: Column(
+                children: <Widget>[
+                  Container(
+                      color: Colors.deepPurple,
+                      height: MediaQuery.of(context).size.height / 1.75,
+                      width: double.infinity,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          if (state == ConnectionState.waiting) ...[
+                            CircularProgressIndicator()
+                          ] else ...[
+                            if (!loggedIn) ...[
+                              Expanded(
+                                child: RawMaterialButton(
+                                  onPressed: _authService.googleSignIn,
+                                  padding: EdgeInsets.all(50.0),
+                                  child: Text(
+                                    'Clique aqui para iniciar uma conta e criar excursões',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 24.0),
+                                  ),
+                                ),
+                              )
+                            ] else ...[
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: <Widget>[
+                                    Container(
+                                      color: Colors.deepPurple,
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: <Widget>[
+                                          Align(
+                                              alignment: FractionalOffset.bottomCenter,
+                                            child: FlatButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddTravelPage()));
+                                                },
+                                                color: Colors.deepPurple.shade400,
+                                                highlightColor:
+                                                Colors.deepPurple.shade400,
+                                                splashColor: Colors.deepPurple,
+                                                padding: EdgeInsets.all(20.0),
+                                                child: SizedBox(
+                                                    width: double.infinity,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                      children: <Widget>[
+                                                        Text(
+                                                          'Criar uma excursão',
+                                                          textAlign: TextAlign.left,
+                                                          style: TextStyle(
+                                                              color: Colors.white,
+                                                              fontSize: 16.0,
+                                                              fontWeight:
+                                                              FontWeight.w600),
+                                                        ),
+                                                        Icon(Icons.add,
+                                                            color: Colors.white)
+                                                      ],
+                                                    ))),
+                                          ),
+
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ]
+                          ],
+                        ],
+                      )),
+                  Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: TextField(
+                      style: TextStyle(fontSize: 20.0),
+                      decoration: InputDecoration(
+                          hintText: 'Para qual evento deseja ir?'),
+                      textInputAction: TextInputAction.search,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 }
-
