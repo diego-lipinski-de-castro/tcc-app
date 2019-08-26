@@ -12,6 +12,6 @@ class _AddTravelPageState extends State<AddTravelPage> {
       appBar: AppBar(
         title: Text('uck'),
       ),
-    )
+    );
   }
 }
