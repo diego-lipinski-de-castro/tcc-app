@@ -27,18 +27,24 @@ class _AddTravelPageState extends State<AddTravelPage> {
   DateTime _backDate;
   TimeOfDay _backTime;
 
-  Future _getDateTime() async {
+  Future _getDateTime(DateTime initialDate, TimeOfDay initialTime) async {
     try {
       DateTime date = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: initialDate == null ? DateTime.now() : initialDate,
         firstDate: DateTime(2015, 1, 1),
         lastDate: DateTime(2050, 1, 1)
       );
 
       TimeOfDay time = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.now(),
+        initialTime: initialTime == null ? TimeOfDay.now() : initialTime,
+        builder: (BuildContext context, Widget child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+            child: child,
+          );
+        },
       );
 
       return {
@@ -70,6 +76,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
             child: Column(
               children: <Widget>[
                 TextFormField(
+                  autocorrect: false,
                   decoration: InputDecoration(
                     hasFloatingPlaceholder: false,
                     labelText: "Título (nome do evento)",
@@ -97,7 +104,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 10.0),
+                  padding: EdgeInsets.only(top: 30.0),
                 ),
                 GestureDetector(
                   onTap: () async {
@@ -114,14 +121,14 @@ class _AddTravelPageState extends State<AddTravelPage> {
                         decoration: InputDecoration(
                           hasFloatingPlaceholder: false,
                           labelText: "Local de saída",
-                          suffixIcon: Icon(Icons.location_on),
+                          suffixIcon: Icon(Icons.location_on)
                         ),
                       ),
                     ),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 10.0),
+                  padding: EdgeInsets.only(top: 30.0),
                 ),
                 GestureDetector(
                   onTap: () async {
@@ -139,29 +146,31 @@ class _AddTravelPageState extends State<AddTravelPage> {
                         decoration: InputDecoration(
                           hasFloatingPlaceholder: false,
                           labelText: "Destino (localização do evento)",
-                          suffixIcon: Icon(Icons.location_on),
+                          suffixIcon: Icon(Icons.location_on)
                         ),
                       ),
                     ),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 10.0),
+                  padding: EdgeInsets.only(top: 30.0),
                 ),
                 GestureDetector(
                   onTap: () {
-                    _getDateTime()
+                    _getDateTime(_startDate, _startTime)
                       .then((datetime) {
-                        print(datetime);
                         _startDate = datetime['date'];
                         _startTime = datetime['time'];
                       })
                       .then((_) {
+                        var startDayText = _startDate.day > 9 ? _startDate.day : "0${_startDate.day}";
                         var startMonthText = _startDate.month > 9 ? _startDate.month : "0${_startDate.month}";
+
+                        var startHourText = _startTime.hour > 9 ? _startTime.hour : "0${_startTime.hour}";
                         var startMinuteText = _startTime.minute > 9 ? _startTime.minute : "0${_startTime.minute}";
 
-                        var startDateText = "${_startDate.day}/$startMonthText";
-                        var startTimeText = "${_startTime.hour}:$startMinuteText";
+                        var startDateText = '$startDayText/$startMonthText';
+                        var startTimeText = '$startHourText:$startMinuteText';
 
                         _startDateTimeField.text = '$startDateText $startTimeText';
                       });
@@ -175,29 +184,32 @@ class _AddTravelPageState extends State<AddTravelPage> {
                         decoration: InputDecoration(
                           hasFloatingPlaceholder: false,
                           labelText: "Data e horário de saida",
+                          suffixIcon: Icon(Icons.calendar_today)
                         ),
                       ),
                     ),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 10.0),
+                  padding: EdgeInsets.only(top: 30.0),
                 ),
                 GestureDetector(
                   onTap: () {
-                    _getDateTime()
+                    _getDateTime(_backDate, _backTime)
                       .then((datetime) {
-                        print(datetime);
                         _backDate = datetime['date'];
                         _backTime = datetime['time'];
                       })
                       .then((_) {
+                        var backDayText = _backDate.day > 9 ? _backDate.day : "0${_backDate.day}";
                         var backMonthText = _backDate.month > 9 ? _backDate.month : "0${_backDate.month}";
+
+                        var backHourText = _backTime.hour > 9 ? _backTime.hour : "0${_backTime.hour}";
                         var backMinuteText = _backTime.minute > 9 ? _backTime.minute : "0${_backTime.minute}";
 
-                        var backDateText = "${_backDate.day}/$backMonthText";
-                        var backTimeText = "${_backTime.hour}:$backMinuteText";
-                        
+                        var backDateText = '$backDayText/$backMonthText';
+                        var backTimeText = '$backHourText:$backMinuteText';
+
                         _backDateTimeField.text = '$backDateText $backTimeText';
                       });
                   },
@@ -205,32 +217,33 @@ class _AddTravelPageState extends State<AddTravelPage> {
                     color: Colors.transparent,
                     child: IgnorePointer(
                       child: TextFormField(
-                        controller: _startDateTimeField,
+                        controller: _backDateTimeField,
                         readOnly: true,
                         decoration: InputDecoration(
                           hasFloatingPlaceholder: false,
                           labelText: "Data e horário de saida",
+                          suffixIcon: Icon(Icons.calendar_today)
                         ),
                       ),
                     ),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 10.0),
+                  padding: EdgeInsets.only(top: 30.0),
                 ),
                 TextFormField(
                   decoration: InputDecoration(
                     hasFloatingPlaceholder: false,
-                    labelText: "Número total de vagas",
+                    labelText: "Número total de vagas"
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 10.0),
+                  padding: EdgeInsets.only(top: 30.0),
                 ),
                 TextFormField(
                   decoration: InputDecoration(
                     hasFloatingPlaceholder: false,
-                    labelText: "Preço da excursão",
+                    labelText: "Preço da excursão"
                   ),
                 ),
               ],
