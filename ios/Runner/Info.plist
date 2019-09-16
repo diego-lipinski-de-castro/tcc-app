@@ -53,5 +53,9 @@
 			</array>
 		</dict>
 	</array>
+	<key>io.flutter.embedded_views_preview</key>
+	<string>YES</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Precisamos saber sua localização para buscar as excursões mais próximas de você</string>
 </dict>
 </plist>

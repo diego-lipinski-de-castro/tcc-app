@@ -37,7 +37,7 @@ class AuthService {
   }
 
   googleSignOut() async {
-    await _googleSignIn.signOut();
+//    await _googleSignIn.signOut();
     await _firebaseAuth.signOut();
   }
 }
