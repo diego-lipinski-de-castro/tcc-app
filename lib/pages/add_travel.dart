@@ -1,7 +1,6 @@
-import 'dart:ui' as prefix0;
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:keyboard_visibility/keyboard_visibility.dart';
 import '../widgets/search_places.dart';
 
 class AddTravelPage extends StatefulWidget {
@@ -10,13 +9,13 @@ class AddTravelPage extends StatefulWidget {
 }
 
 class _AddTravelPageState extends State<AddTravelPage> {
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
-  TextEditingController _startingPlaceField = TextEditingController();
-  TextEditingController _destinationPlaceField = TextEditingController();
+  final _startingPlaceField = TextEditingController();
+  final _destinationPlaceField = TextEditingController();
 
-  TextEditingController _startDateTimeField = TextEditingController();
-  TextEditingController _backDateTimeField = TextEditingController();
+  final _startDateTimeField = TextEditingController();
+  final _backDateTimeField = TextEditingController();
 
   Prediction _start;
   Prediction _destination;
@@ -27,7 +26,37 @@ class _AddTravelPageState extends State<AddTravelPage> {
   DateTime _backDate;
   TimeOfDay _backTime;
 
+  KeyboardVisibilityNotification _keyboard = new KeyboardVisibilityNotification();
+  int _keyboardListener;
+  bool _keyboardVisible;
+
+  @override
+  void initState() { 
+    super.initState();
+  
+    _keyboardVisible = _keyboard.isKeyboardVisible;
+
+    _keyboardListener = _keyboard.addNewListener(
+      onChange: (bool visible) {
+        setState(() {
+          _keyboardVisible = visible;
+        });
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _keyboard.removeListener(_keyboardListener);
+
+    super.dispose();
+  }
+
   Future _getDateTime(DateTime initialDate, TimeOfDay initialTime) async {
+
+    DateTime date;
+    TimeOfDay time;
+
     try {
       DateTime date = await showDatePicker(
         context: context,
@@ -35,6 +64,10 @@ class _AddTravelPageState extends State<AddTravelPage> {
         firstDate: DateTime(2015, 1, 1),
         lastDate: DateTime(2050, 1, 1)
       );
+
+      if(date == null) {
+        return null;
+      }
 
       TimeOfDay time = await showTimePicker(
         context: context,
@@ -46,6 +79,10 @@ class _AddTravelPageState extends State<AddTravelPage> {
           );
         },
       );
+
+      if(date == null) {
+        return null;
+      }
 
       return {
         'date': date,
@@ -156,24 +193,26 @@ class _AddTravelPageState extends State<AddTravelPage> {
                   padding: EdgeInsets.only(top: 30.0),
                 ),
                 GestureDetector(
-                  onTap: () {
-                    _getDateTime(_startDate, _startTime)
-                      .then((datetime) {
-                        _startDate = datetime['date'];
-                        _startTime = datetime['time'];
-                      })
-                      .then((_) {
-                        var startDayText = _startDate.day > 9 ? _startDate.day : "0${_startDate.day}";
-                        var startMonthText = _startDate.month > 9 ? _startDate.month : "0${_startDate.month}";
+                  onTap: () async {
+                    var datetime = await _getDateTime(_startDate, _startTime);
 
-                        var startHourText = _startTime.hour > 9 ? _startTime.hour : "0${_startTime.hour}";
-                        var startMinuteText = _startTime.minute > 9 ? _startTime.minute : "0${_startTime.minute}";
+                    if(datetime == null) {
+                      return;
+                    }
 
-                        var startDateText = '$startDayText/$startMonthText';
-                        var startTimeText = '$startHourText:$startMinuteText';
+                    _startDate = datetime['date'];
+                    _startTime = datetime['time'];
 
-                        _startDateTimeField.text = '$startDateText $startTimeText';
-                      });
+                    var startDayText = _startDate.day > 9 ? _startDate.day : "0${_startDate.day}";
+                    var startMonthText = _startDate.month > 9 ? _startDate.month : "0${_startDate.month}";
+
+                    var startHourText = _startTime.hour > 9 ? _startTime.hour : "0${_startTime.hour}";
+                    var startMinuteText = _startTime.minute > 9 ? _startTime.minute : "0${_startTime.minute}";
+
+                    var startDateText = '$startDayText/$startMonthText';
+                    var startTimeText = '$startHourText:$startMinuteText';
+
+                    _startDateTimeField.text = '$startDateText $startTimeText';
                   },
                   child: Container(
                     color: Colors.transparent,
@@ -194,24 +233,26 @@ class _AddTravelPageState extends State<AddTravelPage> {
                   padding: EdgeInsets.only(top: 30.0),
                 ),
                 GestureDetector(
-                  onTap: () {
-                    _getDateTime(_backDate, _backTime)
-                      .then((datetime) {
-                        _backDate = datetime['date'];
-                        _backTime = datetime['time'];
-                      })
-                      .then((_) {
-                        var backDayText = _backDate.day > 9 ? _backDate.day : "0${_backDate.day}";
-                        var backMonthText = _backDate.month > 9 ? _backDate.month : "0${_backDate.month}";
+                  onTap: () async {
+                    var datetime = await _getDateTime(_backDate, _backTime);
 
-                        var backHourText = _backTime.hour > 9 ? _backTime.hour : "0${_backTime.hour}";
-                        var backMinuteText = _backTime.minute > 9 ? _backTime.minute : "0${_backTime.minute}";
+                    if(datetime == null) {
+                      return;
+                    }
 
-                        var backDateText = '$backDayText/$backMonthText';
-                        var backTimeText = '$backHourText:$backMinuteText';
+                    _backDate = datetime['date'];
+                    _backTime = datetime['time'];
 
-                        _backDateTimeField.text = '$backDateText $backTimeText';
-                      });
+                    var backDayText = _backDate.day > 9 ? _backDate.day : "0${_backDate.day}";
+                    var backMonthText = _backDate.month > 9 ? _backDate.month : "0${_backDate.month}";
+
+                    var backHourText = _backTime.hour > 9 ? _backTime.hour : "0${_backTime.hour}";
+                    var backMinuteText = _backTime.minute > 9 ? _backTime.minute : "0${_backTime.minute}";
+
+                    var backDateText = '$backDayText/$backMonthText';
+                    var backTimeText = '$backHourText:$backMinuteText';
+
+                    _backDateTimeField.text = '$backDateText $backTimeText';
                   },
                   child: Container(
                     color: Colors.transparent,
@@ -251,9 +292,12 @@ class _AddTravelPageState extends State<AddTravelPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.check),
-        onPressed: _createTravel
+      floatingActionButton: Visibility(
+        visible: !_keyboardVisible,
+        child: FloatingActionButton(
+          child: Icon(Icons.check),
+          onPressed: _createTravel
+        ),
       ),
     );
   }
