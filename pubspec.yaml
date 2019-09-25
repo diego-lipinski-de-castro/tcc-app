@@ -36,6 +36,8 @@ dependencies:
   connectivity: ^0.4.4
   keyboard_visibility: any
 
+  flutter_flipperkit: ^0.0.18
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

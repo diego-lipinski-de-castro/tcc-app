@@ -1,4 +1,5 @@
 PODS:
+  - boost-for-react-native (1.63.0)
   - BoringSSL-GRPC (0.0.3):
     - BoringSSL-GRPC/Implementation (= 0.0.3)
     - BoringSSL-GRPC/Interface (= 0.0.3)
@@ -9,9 +10,14 @@ PODS:
     - Firebase/Core
     - Firebase/Firestore (~> 6.0)
     - Flutter
+  - CocoaAsyncSocket (7.6.3)
+  - CocoaLibEvent (1.0.0)
+  - ComponentKit (0.29):
+    - Yoga (~> 1.14)
   - connectivity (0.0.1):
     - Flutter
     - Reachability
+  - DoubleConversion (1.1.5)
   - Firebase/Auth (6.7.0):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 6.2.3)
@@ -76,9 +82,63 @@ PODS:
     - FirebaseCore (~> 6.0)
     - GoogleUtilities/Environment (~> 6.0)
     - GoogleUtilities/UserDefaults (~> 6.0)
+  - Flipper (0.23.4):
+    - Flipper-Folly (~> 2.0)
+    - Flipper-RSocket (~> 1.0)
+  - Flipper-Folly (2.0.0):
+    - boost-for-react-native
+    - CocoaLibEvent (~> 1.0)
+    - DoubleConversion
+    - glog
+    - openssl-ios-bitcode (~> 1.0)
+  - Flipper-PeerTalk (0.0.4)
+  - Flipper-RSocket (1.0.0):
+    - Flipper-Folly (~> 2.0)
+  - FlipperKit (0.23.4):
+    - FlipperKit/Core (= 0.23.4)
+  - FlipperKit/Core (0.23.4):
+    - Flipper (~> 0.23.4)
+    - FlipperKit/CppBridge
+    - FlipperKit/FBCxxUtils
+    - FlipperKit/FBDefines
+    - FlipperKit/FKPortForwarding
+  - FlipperKit/CppBridge (0.23.4):
+    - Flipper (~> 0.23.4)
+  - FlipperKit/FBCxxUtils (0.23.4):
+    - Flipper-Folly (~> 2.0)
+  - FlipperKit/FBDefines (0.23.4)
+  - FlipperKit/FKPortForwarding (0.23.4):
+    - CocoaAsyncSocket (~> 7.6)
+    - Flipper-PeerTalk (~> 0.0.4)
+  - FlipperKit/FlipperKitLayoutComponentKitSupport (0.23.4):
+    - ComponentKit (~> 0.27)
+    - FlipperKit/Core
+    - FlipperKit/FlipperKitLayoutPlugin
+    - FlipperKit/FlipperKitLayoutTextSearchable
+    - Yoga (~> 1.14)
+  - FlipperKit/FlipperKitLayoutPlugin (0.23.4):
+    - FlipperKit/Core
+    - FlipperKit/FlipperKitLayoutTextSearchable
+    - Yoga (~> 1.14)
+    - YogaKit (~> 1.14)
+  - FlipperKit/FlipperKitLayoutTextSearchable (0.23.4)
+  - FlipperKit/FlipperKitNetworkPlugin (0.23.4):
+    - FlipperKit/Core
+  - FlipperKit/FlipperKitUserDefaultsPlugin (0.23.4):
+    - FlipperKit/Core
+  - FlipperKit/SKIOSNetworkPlugin (0.23.4):
+    - FlipperKit/Core
+    - FlipperKit/FlipperKitNetworkPlugin
   - Flutter (1.0.0)
+  - flutter_flipperkit (0.0.6):
+    - FlipperKit (~> 0.23.1)
+    - FlipperKit/FlipperKitLayoutComponentKitSupport (~> 0.23.1)
+    - FlipperKit/FlipperKitUserDefaultsPlugin (~> 0.23.1)
+    - FlipperKit/SKIOSNetworkPlugin (~> 0.23.1)
+    - Flutter
   - geolocator (5.1.3):
     - Flutter
+  - glog (0.3.4)
   - google_api_availability (2.0.1):
     - Flutter
   - google_maps_flutter (0.0.1):
@@ -160,10 +220,14 @@ PODS:
     - nanopb/encode (= 0.3.901)
   - nanopb/decode (0.3.901)
   - nanopb/encode (0.3.901)
+  - openssl-ios-bitcode (1.0.216)
   - permission_handler (3.2.2):
     - Flutter
   - Protobuf (3.9.0)
   - Reachability (3.2)
+  - Yoga (1.14.0)
+  - YogaKit (1.14.0):
+    - Yoga (~> 1.14)
 
 DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
@@ -171,6 +235,7 @@ DEPENDENCIES:
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - Flutter (from `.symlinks/flutter/ios`)
+  - flutter_flipperkit (from `.symlinks/plugins/flutter_flipperkit/ios`)
   - geolocator (from `.symlinks/plugins/geolocator/ios`)
   - google_api_availability (from `.symlinks/plugins/google_api_availability/ios`)
   - google_maps_flutter (from `.symlinks/plugins/google_maps_flutter/ios`)
@@ -181,7 +246,12 @@ DEPENDENCIES:
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
+    - boost-for-react-native
     - BoringSSL-GRPC
+    - CocoaAsyncSocket
+    - CocoaLibEvent
+    - ComponentKit
+    - DoubleConversion
     - Firebase
     - FirebaseAnalytics
     - FirebaseAuth
@@ -191,6 +261,12 @@ SPEC REPOS:
     - FirebaseCoreDiagnosticsInterop
     - FirebaseFirestore
     - FirebaseInstanceID
+    - Flipper
+    - Flipper-Folly
+    - Flipper-PeerTalk
+    - Flipper-RSocket
+    - FlipperKit
+    - glog
     - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleDataTransportCCTSupport
@@ -203,8 +279,11 @@ SPEC REPOS:
     - GTMSessionFetcher
     - leveldb-library
     - nanopb
+    - openssl-ios-bitcode
     - Protobuf
     - Reachability
+    - Yoga
+    - YogaKit
 
 EXTERNAL SOURCES:
   cloud_firestore:
@@ -217,6 +296,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_core/ios"
   Flutter:
     :path: ".symlinks/flutter/ios"
+  flutter_flipperkit:
+    :path: ".symlinks/plugins/flutter_flipperkit/ios"
   geolocator:
     :path: ".symlinks/plugins/geolocator/ios"
   google_api_availability:
@@ -233,9 +314,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/permission_handler/ios"
 
 SPEC CHECKSUMS:
+  boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BoringSSL-GRPC: db8764df3204ccea016e1c8dd15d9a9ad63ff318
   cloud_firestore: 5031bce1cfbcfc667134d253ff5f448d085cdaf6
+  CocoaAsyncSocket: eafaa68a7e0ec99ead0a7b35015e0bf25d2c8987
+  CocoaLibEvent: 2fab71b8bd46dd33ddb959f7928ec5909f838e3f
+  ComponentKit: f8ceb6ffdf33e0c229eac8aadac5df2329902d41
   connectivity: c72716e202a1225ec4810740d5cb56b8ae3bf4cc
+  DoubleConversion: e22e0762848812a87afd67ffda3998d9ef29170c
   Firebase: 291d7b0a7b393f252358083b5d224884126fa46d
   firebase_auth: abe6028714069ea62fbe52f720786940672a11f2
   firebase_core: ae55ea92448ec8675d325da4db22cf3b4d58a54d
@@ -247,8 +333,15 @@ SPEC CHECKSUMS:
   FirebaseCoreDiagnosticsInterop: 6829da2b8d1fc795ff1bd99df751d3788035d2cb
   FirebaseFirestore: c457c22c49ccf15a0fbe95bfcbcf69b984dec285
   FirebaseInstanceID: 8b42755db950682e7de0d167bc6fb26a57b244af
+  Flipper: 4e1bbfefd2d49e005c8a24f72a528c0121a95ce8
+  Flipper-Folly: 47dd8eaa8bf2245683e67c83121e6d2d8f4807cd
+  Flipper-PeerTalk: 116d8f857dc6ef55c7a5a75ea3ceaafe878aadc9
+  Flipper-RSocket: 1260a31c05c238eabfa9bb8a64e3983049048371
+  FlipperKit: 5ec4eea59a69bfe28d460f4b076f81cf0687c904
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  flutter_flipperkit: 4c609b40a520b0cb3a2b648a9bd605b3fe15490a
   geolocator: 2d5da6891d865c0f1b4f851683eed890dd9c8bc1
+  glog: 1de0bb937dccdc981596d3b5825ebfb765017ded
   google_api_availability: 163b30f802e6148c67f092aa4501c90ddd8eec8d
   google_maps_flutter: 78a52114c898b42ea647919679a4c58b70abe876
   google_sign_in: 27e70a98b529f0b076d4b19f231b81da28b1750b
@@ -266,10 +359,13 @@ SPEC CHECKSUMS:
   leveldb-library: 55d93ee664b4007aac644a782d11da33fba316f7
   location_permissions: 67cfaff583afbb027a9f9248196f4b79c40f3cdc
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
+  openssl-ios-bitcode: b46298bcbc3e218fe13e376142af616850a36f7d
   permission_handler: d59f41439f5bc6c4d1005f3355e98f05ddc68ece
   Protobuf: 1097ca58584c8d9be81bfbf2c5ff5975648dd87a
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  Yoga: cff67a400f6b74dc38eb0bad4f156673d9aa980c
+  YogaKit: 5d1dc899cecd5946e5a758a0c3997704a4b48d01
 
-PODFILE CHECKSUM: aff02bfeed411c636180d6812254b2daeea14d09
+PODFILE CHECKSUM: 3389836f37640698630b8f0670315d626d5f1469
 
 COCOAPODS: 1.7.1

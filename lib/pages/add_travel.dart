@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import '../widgets/search_places.dart';
+import '../services/travel.dart';
 
 class AddTravelPage extends StatefulWidget {
   @override
@@ -10,6 +11,7 @@ class AddTravelPage extends StatefulWidget {
 
 class _AddTravelPageState extends State<AddTravelPage> {
   final _formKey = GlobalKey<FormState>();
+  TravelService _travelService = TravelService();
 
   final _startingPlaceField = TextEditingController();
   final _destinationPlaceField = TextEditingController();
@@ -96,7 +98,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
   }
 
   _createTravel() {
-
+    _travelService.add();
   }
 
   @override

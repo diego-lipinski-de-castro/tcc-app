@@ -5,6 +5,7 @@ import 'package:tcc/services/auth.dart';
 import 'package:tcc/services/permission.dart';
 import 'package:tcc/pages/add_travel.dart';
 import 'package:geolocator/geolocator.dart';
+import 'widgets/search_travels.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -21,19 +22,25 @@ class _HomePageState extends State<HomePage>
   LatLng _initialPosition;
   bool _hasPermission = false;
   TextEditingController _searchInput = TextEditingController();
-  bool _isSearching = false;
   FocusNode _searchInputFocus = FocusNode();
 
   @override
   void initState() {
     super.initState();
 
+    _searchInputFocus.addListener(_searchInputFocusListener);
+
     _init();
   }
 
   @override
   void dispose() {
+    _searchInputFocus.removeListener(_searchInputFocusListener);
     super.dispose();
+  }
+
+  _searchInputFocusListener() {
+    if (_searchInputFocus.hasFocus) {}
   }
 
   _init() async {
@@ -100,7 +107,7 @@ class _HomePageState extends State<HomePage>
                         },
                         initialCameraPosition: CameraPosition(
                           target: _initialPosition,
-                          zoom: 18,
+                          zoom: 15,
                         ),
                         myLocationEnabled: _hasPermission,
                         myLocationButtonEnabled: false,
@@ -131,19 +138,20 @@ class _HomePageState extends State<HomePage>
                 ],
               ),
             ),
-            // floatingActionButtonLocation:
-            //     FloatingActionButtonLocation.centerDocked,
-            // floatingActionButton: FloatingActionButton(
-            //   child: Icon(Icons.search),
-            //   onPressed: () {
-            //     setState(() {
-            //       _isSearching = true;
-            //     });
-            //   },
-            // ),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerDocked,
+            floatingActionButton: FloatingActionButton.extended(
+              elevation: 4.0,
+              label: const Text('Pesquisar'),
+              icon: const Icon(Icons.search),
+              onPressed: () async {
+                var test = await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => SearchTravels()));
+
+                print(test);
+              },
+            ),
             bottomNavigationBar: BottomAppBar(
-              shape: CircularNotchedRectangle(),
-              notchMargin: 4.0,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
@@ -176,23 +184,18 @@ class _HomePageState extends State<HomePage>
                       ]
                     ],
                   ),
-
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 25.0, horizontal: 40.0),
-                    child: TextField(
-                      focusNode: _searchInputFocus,
-                      controller: _searchInput,
-                      decoration: InputDecoration(
-                        hasFloatingPlaceholder: false,
-                        labelText: "Para qual evento deseja ir?",
-                      ),
-                    ),
-                  ),
-
-                  Padding(
-                    padding: EdgeInsets.only(top: MediaQuery.of(context).viewInsets.bottom)
-                  ),
+                  // Padding(
+                  //   padding:
+                  //       EdgeInsets.symmetric(vertical: 25.0, horizontal: 40.0),
+                  //   child: TextField(
+                  //     focusNode: _searchInputFocus,
+                  //     controller: _searchInput,
+                  //     decoration: InputDecoration(
+                  //       hasFloatingPlaceholder: false,
+                  //       labelText: "Para qual evento deseja ir?",
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
