@@ -21,6 +21,15 @@ class AuthService {
     });
   }
 
+  Future<FirebaseUser> currentUser() async {
+    try {
+      return (await _firebaseAuth.currentUser());
+    } catch (error) {
+      print(error);
+      return null;
+    }
+  }
+
   Future<bool> confirmPhone(smsCode) async {
     try {
       AuthCredential phoneAuthProvider =

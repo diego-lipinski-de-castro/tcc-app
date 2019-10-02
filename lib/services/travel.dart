@@ -31,9 +31,8 @@ class TravelService {
   }
 
   Future<bool> add(Travel travel) async {
-    FirebaseUser user = AuthService().user;
-
-    print(user);
+    
+    FirebaseUser user = await AuthService().currentUser();
 
     if (user == null) {
       return false;
@@ -83,10 +82,16 @@ class TravelService {
     }
   }
 
-  Future<List<Travel>> getAllByUser(String uid) async {
+  Future<List<Travel>> getAllByUser() async {
+    FirebaseUser user = await AuthService().currentUser();
+
+    if(user == null) {
+      return [];
+    }
+
     try {
       QuerySnapshot snapshot =
-          await collection.where('createdBy', isEqualTo: uid).getDocuments();
+          await collection.where('createdBy', isEqualTo: user.uid).getDocuments();
 
       return snapshot.documents
           .map((DocumentSnapshot _doc) => Travel.fromFirestore(_doc))

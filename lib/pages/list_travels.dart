@@ -29,13 +29,7 @@ class _ListTravelPageState extends State<ListTravelPage> {
   }
 
   Future<void> _refresh() async {
-    // setState(() {
-    //   _loading = true;
-    // });
-
-    print(_authService.user?.uid);
-
-    // _results = await _travelService.getAllByUser(user.uid);
+    _results = await _travelService.getAllByUser();
   }
 
   @override
@@ -45,11 +39,10 @@ class _ListTravelPageState extends State<ListTravelPage> {
         title: Text("Suas excursões"),
       ),
       body: StreamBuilder<FirebaseUser>(
-          stream: null,
+          stream: _authService.userStream,
           builder: (streamContext, snapshot) {
             ConnectionState state = snapshot.connectionState;
             bool loggedIn = _authService.user != null;
-            FirebaseUser user = _authService.user;
 
             if (state == ConnectionState.waiting) {
               return Center(
@@ -68,43 +61,43 @@ class _ListTravelPageState extends State<ListTravelPage> {
                     itemCount: _results.length,
                     itemBuilder: (dialogContext, index) {
                       return GestureDetector(
-                        // onLongPress: () {
-                        //   showDialog(
-                        //       context: context,
-                        //       builder: (context) {
-                        //         return AlertDialog(
-                        //           title: Text("Confirmar"),
-                        //           content: Text(
-                        //               "Tem certeza que deseja apagar a excursão " +
-                        //                   _results.elementAt(index)?.title +
-                        //                   "?"),
-                        //           actions: <Widget>[
-                        //             FlatButton(
-                        //               child: Text("Não"),
-                        //               onPressed: () {
-                        //                 Navigator.of(dialogContext).pop();
-                        //               },
-                        //             ),
-                        //             FlatButton(
-                        //               child: Text("Sim"),
-                        //               onPressed: () async {
-                        //                 await _travelService.delete(
-                        //                     _results.elementAt(index)?.id);
+                        onLongPress: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text("Confirmar"),
+                                  content: Text(
+                                      "Tem certeza que deseja apagar a excursão " +
+                                          _results.elementAt(index)?.title +
+                                          "?"),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                      child: Text("Não"),
+                                      onPressed: () {
+                                        Navigator.of(dialogContext).pop();
+                                      },
+                                    ),
+                                    FlatButton(
+                                      child: Text("Sim"),
+                                      onPressed: () async {
+                                        await _travelService.delete(
+                                            _results.elementAt(index)?.id);
 
-                        //                 Navigator.of(dialogContext).pop();
+                                        Navigator.of(dialogContext).pop();
 
-                        //                 setState(() {});
+                                        setState(() {});
 
-                        //                 Scaffold.of(context).showSnackBar(
-                        //                     SnackBar(
-                        //                         content:
-                        //                             Text('Excursão apagada.')));
-                        //               },
-                        //             )
-                        //           ],
-                        //         );
-                        //       });
-                        // },
+                                        Scaffold.of(context).showSnackBar(
+                                            SnackBar(
+                                                content:
+                                                    Text('Excursão apagada.')));
+                                      },
+                                    )
+                                  ],
+                                );
+                              });
+                        },
                         onTap: () {
                           Navigator.push(
                               context,
