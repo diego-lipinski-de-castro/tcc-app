@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "591230840644",
+    "firebase_url": "https://tcc-pwa.firebaseio.com",
+    "project_id": "tcc-pwa",
+    "storage_bucket": "tcc-pwa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:591230840644:android:0bf722607d3da128393111",
+        "android_client_info": {
+          "package_name": "dc.tcc.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "591230840644-kc7uqidqdiuafalg8bafmke527t03rha.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dc.tcc.app",
+            "certificate_hash": "79328117a27191c5353d057c7c35f32dec551905"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfmEEAPm8pWSjvtZ4P7xUW0GSslWYeG98"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "591230840644-sii452plcb9e0h6g6knhtu23p3s9ht1q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "dc.tcc.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

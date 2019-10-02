@@ -16,6 +16,7 @@ class _SearchTravelsState extends State<SearchTravels> {
   TextEditingController queryController = TextEditingController();
   FocusNode queryFocus = FocusNode();
   Timer _debounce;
+  bool _loading;
 
   List<Travel> _results = [];
 
@@ -33,6 +34,7 @@ class _SearchTravelsState extends State<SearchTravels> {
     _search(text).then((travels) {
       setState(() {
         _results = travels;
+        _loading = false;
       });
     });
   }
@@ -64,6 +66,10 @@ class _SearchTravelsState extends State<SearchTravels> {
 
               if (_debounce?.isActive ?? false) _debounce.cancel();
 
+              setState(() {
+                _loading = true;
+              });
+
               _debounce = Timer(Duration(milliseconds: 600), () {
                 _handleSearch(text);
               });
@@ -85,7 +91,9 @@ class _SearchTravelsState extends State<SearchTravels> {
             )
           ],
         ),
-        body: ListView.builder(
+        body: (_loading == true) ? Center(
+          child: CircularProgressIndicator(),
+        ) :  ListView.builder(
             itemCount: _results.length,
             itemBuilder: (context, index) {
               return GestureDetector(
@@ -98,42 +106,53 @@ class _SearchTravelsState extends State<SearchTravels> {
                         left: 15.0,
                         right: 15.0,
                         bottom: index + 1 == _results.length ? 30.0 : 0),
-                    padding: EdgeInsets.all(20.0),
+                    padding: EdgeInsets.all(15.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                _results.elementAt(index)?.title,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 1.5),
-                              ),
-                              Container(
-                                  margin: EdgeInsets.symmetric(vertical: 8.0),
-                                  height: 2.0,
-                                  width: 18.0,
-                                  color: Color(0xff00c6ff)),
-                              RichText(
-                                text: TextSpan(
+                        Flexible(
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  _results.elementAt(index)?.title,
+                                  overflow: TextOverflow.fade,
+                                  maxLines: 1,
+
                                   style: TextStyle(
-                                      color: Color(0xffb6b2df),
-                                      fontSize: 14.0,
-                                      fontWeight: FontWeight.w400),
-                                  children: <TextSpan>[
-                                    TextSpan(text: "Saída de "),
-                                    TextSpan(
-                                        text: _results.elementAt(index)?.start,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold))
-                                  ],
+                                      color: Colors.white,
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 1.5),
                                 ),
-                              ),
-                            ]),
+                                Container(
+                                    margin: EdgeInsets.symmetric(vertical: 8.0),
+                                    height: 2.0,
+                                    width: 18.0,
+                                    color: Color(0xff00c6ff)),
+                                RichText(
+                                  overflow: TextOverflow.fade,
+                                  softWrap: true,
+                                  maxLines: 2,
+                                  text: TextSpan(
+                                    style: TextStyle(
+                                        color: Color(0xffb6b2df),
+                                        fontSize: 14.0,
+                                        fontWeight: FontWeight.w400),
+                                    children: <TextSpan>[
+                                      TextSpan(text: "Saída de "),
+                                      TextSpan(
+                                          text: _results.elementAt(index)?.start,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold))
+                                    ],
+                                  ),
+                                ),
+                              ]),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 10.0),
+                        ),
                         Text("R\$" + _results.elementAt(index)?.price,
                             style: TextStyle(
                                 color: Colors.white,

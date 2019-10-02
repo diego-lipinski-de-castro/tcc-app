@@ -1,4 +1,4 @@
-package com.example.tcc;
+package dc.tcc.app;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;

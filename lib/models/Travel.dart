@@ -9,7 +9,12 @@ class Travel {
     this.startDateTime,
     this.backDateTime,
     this.vagas,
-    this.price
+    this.price,
+    this.createdAt,
+    this.createdBy,
+    this.phone,
+    this.titleKey,
+    this.hasMapsDoc
   });
 
   final String id;
@@ -20,6 +25,11 @@ class Travel {
   final String backDateTime;
   final String vagas;
   final String price;
+  final Timestamp createdAt;
+  final String createdBy;
+  final String phone;
+  final String titleKey;
+  final bool hasMapsDoc;
 
   factory Travel.fromFirestore(DocumentSnapshot documentSnapshot) {
     Map data = documentSnapshot.data;
@@ -32,7 +42,12 @@ class Travel {
       startDateTime: data['startDateTime'] ?? '',
       backDateTime: data['backDateTime'] ?? '',
       vagas: data['vagas'] ?? '',
-      price: data['price'] ?? ''
+      price: data['price'] ?? '',
+      createdAt: data['createdAt'] ?? '',
+      createdBy: data['createdBy'] ?? '',
+      phone: data['phone'] ?? '',
+      titleKey: data['titleKey'] ?? '',
+      hasMapsDoc: data['hasMapsDoc'] ?? false,
     );
   }
 }

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.tcc">
+    package="dc.tcc.app">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -13,6 +13,10 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="tcc"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data android:name="com.google.android.geo.API_KEY" 
+               android:value="AIzaSyAfmEEAPm8pWSjvtZ4P7xUW0GSslWYeG98"/>
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

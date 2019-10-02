@@ -56,6 +56,6 @@
 	<key>io.flutter.embedded_views_preview</key>
 	<string>YES</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Precisamos saber sua localização para buscar as excursões mais próximas de você</string>
+	<string>Poderemos buscar as excursões mais próximas de você se soubermos sua localização</string>
 </dict>
 </plist>

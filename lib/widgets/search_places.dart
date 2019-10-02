@@ -15,13 +15,14 @@ class _SearchPlacesPageState extends State<SearchPlacesPage> {
   Timer _debounce;
 
   GoogleMapsPlaces _placesServices =
-      GoogleMapsPlaces(apiKey: "AIzaSyBU7Sux2af0OOzxzfj8YP09d3-WtNECk4E");
+      GoogleMapsPlaces(apiKey: "AIzaSyCHOLoxY8hwQzx_dyvDkihq9SpuQeiCGJs");
 
   List<Prediction> _results = [];
 
   Future<List<Prediction>> _search(text) async {
     PlacesAutocompleteResponse result =
         await _placesServices.autocomplete(text, language: "pt-br");
+
     return result.predictions;
   }
 
@@ -85,7 +86,7 @@ class _SearchPlacesPageState extends State<SearchPlacesPage> {
         itemCount: _results.length,
         itemBuilder: (context, index) {
           return ListTile(
-              contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
+              contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
               title: Text(_results.elementAt(index)?.description),
               onTap: () {
                 Navigator.pop(context, _results.elementAt(index));

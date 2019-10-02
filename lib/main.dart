@@ -10,7 +10,7 @@ void main() {
 
   flipperClient.addPlugin(new FlipperNetworkPlugin());
   flipperClient.addPlugin(new FlipperSharedPreferencesPlugin());
-  
+
   flipperClient.start();
 
   runApp(MyApp());
@@ -30,5 +30,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// Color(0xFF333366)

@@ -5,12 +5,16 @@ import '../widgets/search_places.dart';
 import '../services/travel.dart';
 import '../models/Travel.dart';
 
-class AddTravelPage extends StatefulWidget {
+class EditTravelPage extends StatefulWidget {
+  final String docID;
+
+  EditTravelPage({Key key, @required this.docID}) : super(key: key);
+
   @override
-  _AddTravelPageState createState() => _AddTravelPageState();
+  _EditTravelPageState createState() => _EditTravelPageState();
 }
 
-class _AddTravelPageState extends State<AddTravelPage> {
+class _EditTravelPageState extends State<EditTravelPage> {
   final _formKey = GlobalKey<FormState>();
   TravelService _travelService = TravelService();
 
@@ -50,6 +54,8 @@ class _AddTravelPageState extends State<AddTravelPage> {
         });
       },
     );
+
+    _load();
   }
 
   @override
@@ -99,7 +105,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
     }
   }
 
-  _createTravel() {
+  _saveTravel() {
     Travel travel = Travel(
       title: _titleController.text,
       start: _startingPlaceField.text,
@@ -110,16 +116,20 @@ class _AddTravelPageState extends State<AddTravelPage> {
       price: _priceField.text
     );
 
-   _travelService.add(travel);
+  //  _travelService.add(travel);
 
    Navigator.of(context).pop();
+  }
+
+  _load() {
+
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastrar uma excursão'),
+        title: Text('Editar excursão'),
       ),
       body: Form(
         key: _formKey,
@@ -316,7 +326,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
         visible: !_keyboardVisible,
         child: FloatingActionButton(
           child: Icon(Icons.check),
-          onPressed: _createTravel
+          onPressed: _saveTravel
         ),
       ),
     );

@@ -6,10 +6,14 @@ class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
+  String _verificationId;
+
   FirebaseUser user;
   Observable<FirebaseUser> userStream;
 
   AuthService() {
+    _firebaseAuth.setLanguageCode('pt-br');
+
     userStream = Observable(_firebaseAuth.onAuthStateChanged);
 
     _firebaseAuth.onAuthStateChanged.listen((FirebaseUser firebaseUser) {
@@ -17,23 +21,69 @@ class AuthService {
     });
   }
 
+  Future<bool> confirmPhone(smsCode) async {
+    try {
+      AuthCredential phoneAuthProvider =
+          PhoneAuthProvider.getCredential(verificationId: _verificationId, smsCode: smsCode);
+
+      await user.updatePhoneNumberCredential(phoneAuthProvider);
+
+      return true;
+    } catch (error) {
+      print(error);
+
+      return false;
+    }
+  }
+
+  Future<bool> verifyPhone(phoneNumber) async {
+    try {
+      await _firebaseAuth.verifyPhoneNumber(
+          phoneNumber: phoneNumber,
+          timeout: Duration(seconds: 60),
+          // int forceResendingToken,
+          verificationCompleted: (AuthCredential authCredential) {
+            print('verificationCompleted');
+          },
+          verificationFailed: (AuthException authException) {
+            print('verificationFailed');
+            print(authException.code);
+            print(authException.message);
+          },
+          codeSent: (String codeSent, [int number]) {
+            print('codeSent');
+            _verificationId = codeSent;
+          },
+          codeAutoRetrievalTimeout: (String timeout) {
+            print('timeout');
+            _verificationId = timeout;
+          });
+
+      return true;
+    } catch (error) {
+      print(error);
+      return false;
+    }
+  }
+
   Future<bool> googleSignIn() async {
     try {
-      final GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
-      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
+      final GoogleSignInAccount googleSignInAccount =
+          await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleSignInAuthentication =
+          await googleSignInAccount.authentication;
 
       final AuthCredential authCredential = GoogleAuthProvider.getCredential(
-        accessToken: googleSignInAuthentication.accessToken,
-        idToken: googleSignInAuthentication.idToken
-      );
+          accessToken: googleSignInAuthentication.accessToken,
+          idToken: googleSignInAuthentication.idToken);
 
       await _firebaseAuth.signInWithCredential(authCredential);
 
       return true;
-    }  catch (error) {
+    } catch (error) {
       print(error);
       return false;
-    } 
+    }
   }
 
   googleSignOut() async {
