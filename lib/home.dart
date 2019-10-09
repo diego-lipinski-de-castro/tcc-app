@@ -13,7 +13,7 @@ import 'package:google_maps_webservice/directions.dart' as Directions;
 import 'utils/maps.dart';
 import 'pages/profile.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'models/MapData.dart';
+import 'models/map_data.dart';
 import 'pages/list_travels.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,27 +25,34 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
+
   AuthService _authService = AuthService();
   TravelService _travelService = TravelService();
   MapDataService _mapDataService = MapDataService();
-  GoogleMapController _mapsController;
-  LatLng _initialPosition = LatLng(-13.7043336, -69.6663944);
-  bool _hasPermission = false;
-  Travel _selected;
-  String _distance;
-  String _duration;
 
-  Set<Marker> markers = <Marker>{};
-  Set<Polyline> polylines = <Polyline>{};
+  GoogleMapController _mapsController;
+
+  CameraPosition _defaultPosition;
+  CameraPosition _initialPosition =
+      CameraPosition(target: LatLng(-14.235004, -51.92528), zoom: 4);
 
   Directions.GoogleMapsDirections _directions = Directions.GoogleMapsDirections(
       apiKey: "AIzaSyCHOLoxY8hwQzx_dyvDkihq9SpuQeiCGJs");
 
+  Set<Marker> markers = <Marker>{};
+  Set<Polyline> polylines = <Polyline>{};
+
+  bool _hasPermission = false;
+
+  Travel _selected;
+  String _distance;
+  String _duration;
+
+  bool openDetail = false;
+
   @override
   void initState() {
     super.initState();
-
-    // _init();
   }
 
   @override
@@ -61,10 +68,14 @@ class _HomePageState extends State<HomePage> {
 
     if (hasPermission) {
       Position location = await _getCurrentLocation();
-      _initialPosition = LatLng(location.latitude, location.longitude);
+      _initialPosition = CameraPosition(
+          target: LatLng(location.latitude, location.longitude), zoom: 15);
     }
 
-    _mapsController.animateCamera(CameraUpdate.newLatLng(_initialPosition));
+    _defaultPosition = _initialPosition;
+
+    _mapsController.animateCamera(CameraUpdate.newLatLngZoom(
+        _initialPosition.target, _initialPosition.zoom));
 
     setState(() {});
   }
@@ -99,16 +110,15 @@ class _HomePageState extends State<HomePage> {
         points: MapsHelper.convertToLatLng(MapsHelper.decodePoly(points))));
 
     markers.add(Marker(
-        flat: true,
+        consumeTapEvents: false,
         markerId: MarkerId("marker_start"),
-        infoWindow:
-            InfoWindow(title: _selected.start, snippet: "Ponto de saída"),
+        // infoWindow: InfoWindow(title: _selected.start, snippet: "Ponto de saída"),
         position: LatLng(startLat, startLng)));
 
     markers.add(Marker(
+        consumeTapEvents: false,
         markerId: MarkerId("marker_end"),
-        infoWindow:
-            InfoWindow(title: _selected.destiny, snippet: "Ponto de destino"),
+        // infoWindow: InfoWindow(title: _selected.destiny, snippet: "Ponto de destino"),
         position: LatLng(endLat, endLng)));
 
     setState(() {});
@@ -117,7 +127,7 @@ class _HomePageState extends State<HomePage> {
         LatLngBounds(
             southwest: LatLng(southwestLat, southwestLng),
             northeast: LatLng(northeastLat, northeastLng)),
-        100));
+        50));
   }
 
   _loadUi() async {
@@ -156,25 +166,26 @@ class _HomePageState extends State<HomePage> {
           northeastLng: result.routes.first.bounds.northeast.lng,
         );
 
-        // Timer(Duration(seconds: 1), () {
-        //   _mapDataService.add(
-        //       _selected.id,
-        //       MapData(
-        //         travelId: _selected.id,
-        //         distance: result.routes.first.legs.first.distance.text,
-        //         duration: result.routes.first.legs.first.duration.text,
-        //         points: result.routes.first.overviewPolyline.points,
-        //         startLat: result.routes.first.legs.first.startLocation.lat,
-        //         startLng: result.routes.first.legs.first.startLocation.lng,
-        //         endLat: result.routes.first.legs.first.endLocation.lat,
-        //         endLng: result.routes.first.legs.first.endLocation.lng,
-        //         southwestLat: result.routes.first.bounds.southwest.lat,
-        //         southwestLng: result.routes.first.bounds.southwest.lng,
-        //         northeastLat: result.routes.first.bounds.northeast.lat,
-        //         northeastLng: result.routes.first.bounds.northeast.lng,
-        //       ));
-        //   _travelService.update(_selected.id);
-        // });
+        Timer(Duration(seconds: 1), () {
+          _mapDataService.add(
+              _selected.id,
+              MapData(
+                travelId: _selected.id,
+                distance: result.routes.first.legs.first.distance.text,
+                duration: result.routes.first.legs.first.duration.text,
+                points: result.routes.first.overviewPolyline.points,
+                startLat: result.routes.first.legs.first.startLocation.lat,
+                startLng: result.routes.first.legs.first.startLocation.lng,
+                endLat: result.routes.first.legs.first.endLocation.lat,
+                endLng: result.routes.first.legs.first.endLocation.lng,
+                southwestLat: result.routes.first.bounds.southwest.lat,
+                southwestLng: result.routes.first.bounds.southwest.lng,
+                northeastLat: result.routes.first.bounds.northeast.lat,
+                northeastLng: result.routes.first.bounds.northeast.lng,
+              ));
+
+          _travelService.update(_selected.id);
+        });
       }
     } catch (error) {
       print("error");
@@ -206,8 +217,8 @@ class _HomePageState extends State<HomePage> {
       }
     } catch (error) {
       print(error);
-      Scaffold.of(context).showSnackBar(
-          SnackBar(content: Text('Não foi possível executar ação :(')));
+      Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text('Não foi possível executar aç������������o :(')));
     }
   }
 
@@ -228,174 +239,209 @@ class _HomePageState extends State<HomePage> {
 
           return Scaffold(
             key: _scaffoldKey,
+            resizeToAvoidBottomInset: false,
             backgroundColor: Colors.white,
             body: Stack(
               children: <Widget>[
                 GoogleMap(
-                    onMapCreated: (controller) {
-                      _init(controller);
-                    },
-                    initialCameraPosition: CameraPosition(
-                      target: _initialPosition,
-                      zoom: 8,
-                    ),
-                    myLocationEnabled: _hasPermission,
-                    myLocationButtonEnabled: false,
-                    mapType: MapType.normal,
-                    markers: markers,
-                    polylines: polylines),
+                  onMapCreated: (controller) {
+                    _init(controller);
+                  },
+                  initialCameraPosition: _initialPosition,
+                  myLocationEnabled: _hasPermission,
+                  myLocationButtonEnabled: false,
+                  mapType: MapType.normal,
+                  markers: markers,
+                  polylines: polylines,
+                  rotateGesturesEnabled: false,
+                  scrollGesturesEnabled: false,
+                  zoomGesturesEnabled: false,
+                  tiltGesturesEnabled: false,
+                ),
                 if (_selected != null) ...[
                   SafeArea(
                     child: Container(
                       margin: EdgeInsets.all(15.0),
+                      padding: EdgeInsets.all(15.0),
                       width: MediaQuery.of(context).size.width,
-                      height: 50,
-                      child: Center(
-                        child: Text(
+                      color: Colors.white,
+                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        Text(
                           _selected.title,
                           style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 18,
                               letterSpacing: 0.5),
                         ),
-                      ),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10.0),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black12,
-                                offset: Offset(0, 2),
-                                blurRadius: 10.0,
-                                spreadRadius: 0)
-                          ]),
+                      ]),
                     ),
                   ),
-                  Positioned(
-                      top: MediaQuery.of(context).size.height / 4,
-                      child: Container(
-                        width: 120,
-                        padding: EdgeInsets.all(10.0),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Text(
-                                "Saída",
-                                style: TextStyle(
-                                  color: Colors.black,
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.only(
+                            left: 15.0, right: 15.0, bottom: 45.0),
+                        color: Colors.white,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  width:
+                                      (MediaQuery.of(context).size.width / 2) -
+                                          15,
+                                  padding: EdgeInsets.all(15.0),
+                                  child: Column(
+                                    children: <Widget>[
+                                      Text(
+                                        "Local de saída",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Text(
+                                        _selected.start,
+                                        overflow: openDetail ? TextOverflow.visible : TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
                                 ),
+                                Container(
+                                  width:
+                                      (MediaQuery.of(context).size.width / 2) -
+                                          15,
+                                  padding: EdgeInsets.all(15.0),
+                                  child: Column(
+                                    children: <Widget>[
+                                      Text(
+                                        "Local de chegada",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Text(
+                                        _selected.destiny,
+                                        overflow: openDetail ? TextOverflow.visible : TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (openDetail) ...[
+                              Container(
+                                height: 2,
+                                width: 50,
+                                color: Colors.deepPurple,
+                                margin: EdgeInsets.symmetric(vertical: 5.0),
                               ),
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 5.0),
-                              ),
-                              Text(
-                                _selected.startDateTime,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w700),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Container(
+                                    width: (MediaQuery.of(context).size.width /
+                                            2) -
+                                        15,
+                                    padding: EdgeInsets.all(15.0),
+                                    child: Column(
+                                      children: <Widget>[
+                                        Text(
+                                          "Data de saída",
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        Text(
+                                          _selected.startDateTime,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: (MediaQuery.of(context).size.width /
+                                            2) -
+                                        15,
+                                    padding: EdgeInsets.all(15.0),
+                                    child: Column(
+                                      children: <Widget>[
+                                        Text(
+                                          "Data de volta",
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        Text(
+                                          _selected.backDateTime,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                               Container(
-                                  margin: EdgeInsets.symmetric(vertical: 10.0),
-                                  height: 2.0,
-                                  width: 18.0,
-                                  color: Color(0xff00c6ff)),
-                              Text(
-                                "Valor",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                ),
+                                height: 2,
+                                width: 50,
+                                color: Colors.deepPurple,
+                                margin: EdgeInsets.symmetric(vertical: 5.0),
                               ),
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 5.0),
-                              ),
-                              Text(
-                                "R\$" + _selected.price,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w700),
-                              ),
-                              Container(
-                                  margin: EdgeInsets.symmetric(vertical: 10.0),
-                                  height: 2.0,
-                                  width: 18.0,
-                                  color: Color(0xff00c6ff)),
-                              Text(
-                                "Vagas",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 5.0),
-                              ),
-                              Text(
-                                _selected.vagas,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w700),
-                              ),
-                              Container(
-                                  margin: EdgeInsets.symmetric(vertical: 10.0),
-                                  height: 2.0,
-                                  width: 18.0,
-                                  color: Color(0xff00c6ff)),
-                              Text(
-                                "Distância",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 5.0),
-                              ),
-                              Text(
-                                _distance ?? "",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w700),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Container(
+                                    width: (MediaQuery.of(context).size.width /
+                                            2) -
+                                        15,
+                                    padding: EdgeInsets.all(15.0),
+                                    child: Column(
+                                      children: <Widget>[
+                                        Text(
+                                          "Total de vagas",
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        Text(
+                                          _selected.vagas,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: (MediaQuery.of(context).size.width /
+                                            2) -
+                                        15,
+                                    padding: EdgeInsets.all(15.0),
+                                    child: Column(
+                                      children: <Widget>[
+                                        Text(
+                                          "Preço",
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        Text(
+                                          "R\$" + _selected.price,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                               Container(
-                                  margin: EdgeInsets.symmetric(vertical: 10.0),
-                                  height: 2.0,
-                                  width: 18.0,
-                                  color: Color(0xff00c6ff)),
-                              Text(
-                                "Tempo",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 5.0),
-                              ),
-                              Text(
-                                _duration ?? "",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w700),
+                                height: 2,
+                                width: 50,
+                                color: Colors.deepPurple,
+                                margin: EdgeInsets.symmetric(vertical: 5.0),
                               ),
                             ],
-                          ),
-                        ),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(10.0),
-                              bottomRight: Radius.circular(10.0),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black12,
-                                  offset: Offset(0, 0),
-                                  blurRadius: 10.0,
-                                  spreadRadius: 0)
-                            ]),
-                      ))
+                            FlatButton(
+                              onPressed: () {
+                                setState(() {
+                                  openDetail = !openDetail;
+                                });
+                              },
+                              child: Text("Mais informações"),
+                            )
+                          ],
+                        )),
+                  ),
                 ]
               ],
             ),
@@ -442,6 +488,11 @@ class _HomePageState extends State<HomePage> {
                               markers = {};
                               polylines = {};
                             });
+
+                            _mapsController.animateCamera(
+                                CameraUpdate.newLatLngZoom(
+                                    _defaultPosition.target,
+                                    _defaultPosition.zoom));
                           },
                         )
                       ],

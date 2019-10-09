@@ -19,7 +19,6 @@ class _ListTravelPageState extends State<ListTravelPage> {
   AuthService _authService = AuthService();
 
   List<Travel> _results = [];
-  bool _loading = false;
 
   @override
   void initState() {
@@ -29,7 +28,11 @@ class _ListTravelPageState extends State<ListTravelPage> {
   }
 
   Future<void> _refresh() async {
-    _results = await _travelService.getAllByUser();
+    List<Travel> results = await _travelService.getAllByUser();
+
+    setState(() {
+      _results = results;
+    });
   }
 
   @override
@@ -99,12 +102,12 @@ class _ListTravelPageState extends State<ListTravelPage> {
                               });
                         },
                         onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => EditTravelPage(
-                                        docID: _results.elementAt(index)?.id,
-                                      )));
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => EditTravelPage(
+                          //               docID: _results.elementAt(index)?.id,
+                          //             )));
                         },
                         child: Container(
                             margin: EdgeInsets.only(

@@ -1,15 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/MapData.dart';
+import '../models/map_data.dart';
 
 class MapDataService {
   static final path = 'map_data';
   static final Firestore _db = Firestore.instance;
   static final collection = _db.collection(path);
 
-  Future<bool> add(String travelDocID, MapData data) async {
+  Future<bool> add(String travelDocID, MapData mapData) async {
     try {
-      print(data);
-      await collection.document(travelDocID).setData(data as Map<String, dynamic>);
+      await collection.document(travelDocID).setData({
+        'travelId': mapData.travelId,
+        'distance': mapData.distance, 
+        'duration': mapData.duration,
+        'points': mapData.points,
+        'startLat': mapData.startLat,
+        'startLng': mapData.startLng,
+        'endLat': mapData.endLat,
+        'endLng': mapData.endLng,
+        'southwestLat': mapData.southwestLat,
+        'southwestLng': mapData.southwestLng,
+        'northeastLat': mapData.northeastLat,
+        'northeastLng': mapData.northeastLng,
+      });
 
       return true;
     } catch (error) {

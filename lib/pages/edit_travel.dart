@@ -317,6 +317,9 @@ class _EditTravelPageState extends State<EditTravelPage> {
                     labelText: "Preço da excursão"
                   ),
                 ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                ),
               ],
             ),
           ),
