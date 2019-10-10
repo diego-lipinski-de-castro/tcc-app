@@ -51,6 +51,7 @@ class TravelService {
         'backDateTime': travel.backDateTime,
         'vagas': travel.vagas,
         'price': travel.price,
+        // 'description': travel.description,
         'createdAt': DateTime.now(),
         'createdBy': user.uid,
         'phone': user.phoneNumber,

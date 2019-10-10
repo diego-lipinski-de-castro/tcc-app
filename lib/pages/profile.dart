@@ -145,6 +145,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                                     Navigator.of(dialogContext)
                                                         .pop();
 
+                                                    _phoneField.text = '';
+                                                    _smsCodeField.text = '';
+
                                                     if (success) {
                                                       Scaffold.of(context)
                                                           .showSnackBar(SnackBar(

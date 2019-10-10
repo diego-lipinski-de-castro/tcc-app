@@ -229,7 +229,6 @@ class _HomePageState extends State<HomePage> {
         builder: (context, snapshot) {
           ConnectionState state = snapshot.connectionState;
           bool loggedIn = _authService.user != null;
-          FirebaseUser user = _authService.user;
 
           if (state == ConnectionState.waiting) {
             return Center(
@@ -264,7 +263,10 @@ class _HomePageState extends State<HomePage> {
                       margin: EdgeInsets.all(15.0),
                       padding: EdgeInsets.all(15.0),
                       width: MediaQuery.of(context).size.width,
-                      color: Colors.white,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0)
+                        ),
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
                         Text(
                           _selected.title,
@@ -281,8 +283,11 @@ class _HomePageState extends State<HomePage> {
                     child: Container(
                         width: MediaQuery.of(context).size.width,
                         margin: EdgeInsets.only(
-                            left: 15.0, right: 15.0, bottom: 45.0),
-                        color: Colors.white,
+                            left: 15.0, right: 15.0, bottom: 40.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0)
+                        ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
@@ -302,7 +307,9 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       Text(
                                         _selected.start,
-                                        overflow: openDetail ? TextOverflow.visible : TextOverflow.ellipsis,
+                                        overflow: openDetail
+                                            ? TextOverflow.visible
+                                            : TextOverflow.ellipsis,
                                         textAlign: TextAlign.center,
                                       ),
                                     ],
@@ -321,7 +328,9 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       Text(
                                         _selected.destiny,
-                                        overflow: openDetail ? TextOverflow.visible : TextOverflow.ellipsis,
+                                        overflow: openDetail
+                                            ? TextOverflow.visible
+                                            : TextOverflow.ellipsis,
                                         textAlign: TextAlign.center,
                                       ),
                                     ],
@@ -431,14 +440,24 @@ class _HomePageState extends State<HomePage> {
                                 margin: EdgeInsets.symmetric(vertical: 5.0),
                               ),
                             ],
-                            FlatButton(
-                              onPressed: () {
-                                setState(() {
-                                  openDetail = !openDetail;
-                                });
-                              },
-                              child: Text("Mais informações"),
-                            )
+                            Container(
+                                width: MediaQuery.of(context).size.width,
+                                child: FlatButton(
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  padding: EdgeInsets.symmetric(vertical: 15.0),
+                                  onPressed: () {
+                                    setState(() {
+                                      openDetail = !openDetail;
+                                    });
+                                  },
+                                  child: Text(
+                                    "Mais informações",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w700),
+                                  ),
+//                                  color: Colors.red,
+                                )),
                           ],
                         )),
                   ),
@@ -485,6 +504,7 @@ class _HomePageState extends State<HomePage> {
                               _selected = null;
                               _distance = null;
                               _duration = null;
+                              openDetail = false;
                               markers = {};
                               polylines = {};
                             });

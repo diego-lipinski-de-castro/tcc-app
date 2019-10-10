@@ -10,6 +10,7 @@ class Travel {
     this.backDateTime,
     this.vagas,
     this.price,
+    this.description,
     this.createdAt,
     this.createdBy,
     this.phone,
@@ -25,6 +26,7 @@ class Travel {
   final String backDateTime;
   final String vagas;
   final String price;
+  final String description;
   final Timestamp createdAt;
   final String createdBy;
   final String phone;
@@ -43,6 +45,7 @@ class Travel {
       backDateTime: data['backDateTime'] ?? '',
       vagas: data['vagas'] ?? '',
       price: data['price'] ?? '',
+      description: data['description'] ?? '',
       createdAt: data['createdAt'] ?? '',
       createdBy: data['createdBy'] ?? '',
       phone: data['phone'] ?? '',

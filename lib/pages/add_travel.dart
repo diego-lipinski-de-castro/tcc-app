@@ -24,6 +24,8 @@ class _AddTravelPageState extends State<AddTravelPage> {
   final _vagasField = TextEditingController();
   final _priceField = TextEditingController();
 
+  final _descriptionField = TextEditingController();
+
   Prediction _start;
   Prediction _destination;
 
@@ -107,7 +109,8 @@ class _AddTravelPageState extends State<AddTravelPage> {
       startDateTime: _startDateTimeField.text,
       backDateTime: _backDateTimeField.text,
       vagas: _vagasField.text, 
-      price: _priceField.text
+      price: _priceField.text,
+      // description: _descriptionField.text
     );
 
    _travelService.add(travel);
@@ -306,6 +309,22 @@ class _AddTravelPageState extends State<AddTravelPage> {
                     hasFloatingPlaceholder: false,
                     labelText: "Preço da excursão"
                   ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 30.0),
+                ),
+                TextFormField(
+                  controller: _descriptionField,
+                  maxLength: 200,
+                  minLines: 1,
+                  maxLines: 8,
+                  decoration: InputDecoration(
+                    hasFloatingPlaceholder: false,
+                    labelText: "Descrição"
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 75.0),
                 ),
               ],
             ),

@@ -46,6 +46,8 @@ class AuthService {
   }
 
   Future<bool> verifyPhone(phoneNumber) async {
+    phoneNumber = '+55$phoneNumber';
+
     try {
       await _firebaseAuth.verifyPhoneNumber(
           phoneNumber: phoneNumber,
