@@ -110,7 +110,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
       backDateTime: _backDateTimeField.text,
       vagas: _vagasField.text, 
       price: _priceField.text,
-      // description: _descriptionField.text
+      description: _descriptionField.text
     );
 
    _travelService.add(travel);
@@ -315,7 +315,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
                 ),
                 TextFormField(
                   controller: _descriptionField,
-                  maxLength: 200,
+                  maxLength: 400,
                   minLines: 1,
                   maxLines: 8,
                   decoration: InputDecoration(

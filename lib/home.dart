@@ -260,23 +260,20 @@ class _HomePageState extends State<HomePage> {
                 if (_selected != null) ...[
                   SafeArea(
                     child: Container(
-                      margin: EdgeInsets.all(15.0),
-                      padding: EdgeInsets.all(15.0),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0)
-                        ),
-                      child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        Text(
+                        margin: EdgeInsets.all(15.0),
+                        padding: EdgeInsets.all(15.0),
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5.0)),
+                        child: Text(
                           _selected.title,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 18,
                               letterSpacing: 0.5),
-                        ),
-                      ]),
-                    ),
+                        )),
                   ),
                   Align(
                     alignment: Alignment.bottomCenter,
@@ -285,9 +282,8 @@ class _HomePageState extends State<HomePage> {
                         margin: EdgeInsets.only(
                             left: 15.0, right: 15.0, bottom: 40.0),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0)
-                        ),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5.0)),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
@@ -439,6 +435,22 @@ class _HomePageState extends State<HomePage> {
                                 color: Colors.deepPurple,
                                 margin: EdgeInsets.symmetric(vertical: 5.0),
                               ),
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                padding: EdgeInsets.all(15.0),
+                                child: Text(
+                                      _selected.description,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 10,
+                                      textAlign: TextAlign.center
+                                    ),
+                              ),
+                              Container(
+                                height: 2,
+                                width: 50,
+                                color: Colors.deepPurple,
+                                margin: EdgeInsets.symmetric(vertical: 5.0),
+                              ),
                             ],
                             Container(
                                 width: MediaQuery.of(context).size.width,
@@ -461,7 +473,7 @@ class _HomePageState extends State<HomePage> {
                           ],
                         )),
                   ),
-                ]
+                ],
               ],
             ),
             floatingActionButtonLocation:

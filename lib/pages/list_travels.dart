@@ -66,153 +66,167 @@ class _ListTravelPageState extends State<ListTravelPage> {
               ],
               if (!loggedIn) ...[Container()],
               if (loggedIn && !_loading && state == ConnectionState.active) ...[
-                RefreshIndicator(
-                    key: _refreshIndicatorKey,
-                    onRefresh: _refresh,
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: 75.0),
-                      child: ListView.builder(
-                          itemCount: _results.length,
-                          itemBuilder: (dialogContext, index) {
-                            return GestureDetector(
-                              onLongPress: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        title: Text("Confirmar"),
-                                        content: Text(
-                                            "Tem certeza que deseja apagar a excursão " +
-                                                _results
-                                                    .elementAt(index)
-                                                    ?.title +
-                                                "?"),
-                                        actions: <Widget>[
-                                          FlatButton(
-                                            child: Text("Não"),
-                                            onPressed: () {
-                                              Navigator.of(dialogContext).pop();
-                                            },
-                                          ),
-                                          FlatButton(
-                                            child: Text("Sim"),
-                                            onPressed: () async {
-                                              await _travelService.delete(
+                if (_results.length == 0) ...[
+                  Center(
+                    child: Text("Você não possui nenhuma excursão cadastrada."),
+                  )
+                ] else ...[
+                  RefreshIndicator(
+                      key: _refreshIndicatorKey,
+                      onRefresh: _refresh,
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 75.0),
+                        child: ListView.builder(
+                            itemCount: _results.length,
+                            itemBuilder: (dialogContext, index) {
+                              return GestureDetector(
+                                onLongPress: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: Text("Confirmar"),
+                                          content: Text(
+                                              "Tem certeza que deseja apagar a excursão " +
                                                   _results
                                                       .elementAt(index)
-                                                      ?.id);
+                                                      ?.title +
+                                                  "?"),
+                                          actions: <Widget>[
+                                            FlatButton(
+                                              child: Text("Não"),
+                                              onPressed: () {
+                                                Navigator.of(dialogContext)
+                                                    .pop();
+                                              },
+                                            ),
+                                            FlatButton(
+                                              child: Text("Sim"),
+                                              onPressed: () async {
+                                                await _travelService.delete(
+                                                    _results
+                                                        .elementAt(index)
+                                                        ?.id);
 
-                                              Navigator.of(dialogContext).pop();
+                                                Navigator.of(dialogContext)
+                                                    .pop();
 
-                                              setState(() {});
+                                                setState(() {});
 
-                                              Scaffold.of(context).showSnackBar(
-                                                  SnackBar(
-                                                      content: Text(
-                                                          'Excursão apagada.')));
-                                            },
-                                          )
-                                        ],
-                                      );
-                                    });
-                              },
-                              onTap: () {
-                                // Navigator.push(
-                                //     context,
-                                //     MaterialPageRoute(
-                                //         builder: (context) => EditTravelPage(
-                                //               docID: _results.elementAt(index)?.id,
-                                //             )));
-                              },
-                              child: Container(
-                                  margin: EdgeInsets.only(
-                                      top: 15.0,
-                                      left: 15.0,
-                                      right: 15.0,
-                                      bottom: index + 1 == _results.length
-                                          ? 30.0
-                                          : 0),
-                                  padding: EdgeInsets.all(15.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Flexible(
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text(
+                                                Scaffold.of(context)
+                                                    .showSnackBar(SnackBar(
+                                                        content: Text(
+                                                            'Excursão apagada.')));
+                                              },
+                                            )
+                                          ],
+                                        );
+                                      });
+                                },
+                                onTap: () {
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //         builder: (context) => EditTravelPage(
+                                  //               docID: _results.elementAt(index)?.id,
+                                  //             )));
+                                },
+                                child: Container(
+                                    margin: EdgeInsets.only(
+                                        top: 15.0,
+                                        left: 15.0,
+                                        right: 15.0,
+                                        bottom: index + 1 == _results.length
+                                            ? 30.0
+                                            : 0),
+                                    padding: EdgeInsets.all(15.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Flexible(
+                                          child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text(
+                                                  _results
+                                                      .elementAt(index)
+                                                      ?.title,
+                                                  overflow: TextOverflow.fade,
+                                                  maxLines: 1,
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 18.0,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      letterSpacing: 1.5),
+                                                ),
+                                                Container(
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 8.0),
+                                                    height: 2.0,
+                                                    width: 18.0,
+                                                    color: Color(0xff00c6ff)),
+                                                RichText(
+                                                  overflow: TextOverflow.fade,
+                                                  softWrap: true,
+                                                  maxLines: 2,
+                                                  text: TextSpan(
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(0xffb6b2df),
+                                                        fontSize: 14.0,
+                                                        fontWeight:
+                                                            FontWeight.w400),
+                                                    children: <TextSpan>[
+                                                      TextSpan(
+                                                          text: "Saída de "),
+                                                      TextSpan(
+                                                          text: _results
+                                                              .elementAt(index)
+                                                              ?.start,
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold))
+                                                    ],
+                                                  ),
+                                                ),
+                                              ]),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 10.0),
+                                        ),
+                                        Text(
+                                            "R\$" +
                                                 _results
                                                     .elementAt(index)
-                                                    ?.title,
-                                                overflow: TextOverflow.fade,
-                                                maxLines: 1,
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 18.0,
-                                                    fontWeight: FontWeight.w600,
-                                                    letterSpacing: 1.5),
-                                              ),
-                                              Container(
-                                                  margin: EdgeInsets.symmetric(
-                                                      vertical: 8.0),
-                                                  height: 2.0,
-                                                  width: 18.0,
-                                                  color: Color(0xff00c6ff)),
-                                              RichText(
-                                                overflow: TextOverflow.fade,
-                                                softWrap: true,
-                                                maxLines: 2,
-                                                text: TextSpan(
-                                                  style: TextStyle(
-                                                      color: Color(0xffb6b2df),
-                                                      fontSize: 14.0,
-                                                      fontWeight:
-                                                          FontWeight.w400),
-                                                  children: <TextSpan>[
-                                                    TextSpan(text: "Saída de "),
-                                                    TextSpan(
-                                                        text: _results
-                                                            .elementAt(index)
-                                                            ?.start,
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold))
-                                                  ],
-                                                ),
-                                              ),
-                                            ]),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(left: 10.0),
-                                      ),
-                                      Text(
-                                          "R\$" +
-                                              _results.elementAt(index)?.price,
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 20.0,
-                                              fontWeight: FontWeight.w700,
-                                              letterSpacing: 1.5))
-                                    ],
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.deepPurple,
-                                    shape: BoxShape.rectangle,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    boxShadow: <BoxShadow>[
-                                      BoxShadow(
-                                        color: Colors.black12,
-                                        blurRadius: 10.0,
-                                        offset: Offset(0.0, 10.0),
-                                      ),
-                                    ],
-                                  )),
-                            );
-                          }),
-                    ))
+                                                    ?.price,
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 20.0,
+                                                fontWeight: FontWeight.w700,
+                                                letterSpacing: 1.5))
+                                      ],
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.deepPurple,
+                                      shape: BoxShape.rectangle,
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      boxShadow: <BoxShadow>[
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 10.0,
+                                          offset: Offset(0.0, 10.0),
+                                        ),
+                                      ],
+                                    )),
+                              );
+                            }),
+                      ))
+                ]
               ]
             ],
           ),
@@ -241,9 +255,8 @@ class _ListTravelPageState extends State<ListTravelPage> {
                               onPressed: () async {
                                 Navigator.of(dialogContext).pop();
                                 await Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (context) => ProfilePage()));
-
-                                // setState(() { });
+                                    MaterialPageRoute(
+                                        builder: (context) => ProfilePage()));
                               },
                             )
                           ],

@@ -7,7 +7,7 @@ class TravelService {
   static final path = 'travels';
   static final Firestore _db = Firestore.instance;
   static final collection = _db.collection(path);
-
+  
   Future<bool> update(String docID) async {
     try {
       await collection.document(docID).updateData({'hasMapsDoc': true});
@@ -51,7 +51,7 @@ class TravelService {
         'backDateTime': travel.backDateTime,
         'vagas': travel.vagas,
         'price': travel.price,
-        // 'description': travel.description,
+        'description': travel.description,
         'createdAt': DateTime.now(),
         'createdBy': user.uid,
         'phone': user.phoneNumber,
