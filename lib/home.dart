@@ -44,11 +44,11 @@ class _HomePageState extends State<HomePage> {
 
   bool _hasPermission = false;
 
-  Travel _selected;
+  Travel _travel;
   String _distance;
   String _duration;
 
-  bool openDetail = false;
+  bool _openDetail = false;
 
   @override
   void initState() {
@@ -88,7 +88,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   _updateUi(
-      {distance,
+      {Travel travel,
+      distance,
       duration,
       points,
       startLat,
@@ -112,30 +113,35 @@ class _HomePageState extends State<HomePage> {
     markers.add(Marker(
         consumeTapEvents: false,
         markerId: MarkerId("marker_start"),
-        // infoWindow: InfoWindow(title: _selected.start, snippet: "Ponto de saída"),
+        // infoWindow: InfoWindow(title: _travel.start, snippet: "Ponto de saída"),
         position: LatLng(startLat, startLng)));
 
     markers.add(Marker(
         consumeTapEvents: false,
         markerId: MarkerId("marker_end"),
-        // infoWindow: InfoWindow(title: _selected.destiny, snippet: "Ponto de destino"),
+        // infoWindow: InfoWindow(title: _travel.destiny, snippet: "Ponto de destino"),
         position: LatLng(endLat, endLng)));
 
-    setState(() {});
+    setState(() {
+      _travel = travel;
+    });
+
+    _mapsController.animateCamera(CameraUpdate.zoomOut());
 
     _mapsController.animateCamera(CameraUpdate.newLatLngBounds(
         LatLngBounds(
             southwest: LatLng(southwestLat, southwestLng),
             northeast: LatLng(northeastLat, northeastLng)),
-        50));
+        100));
   }
 
-  _loadUi() async {
+  _loadUi(Travel travel) async {
     try {
-      if (_selected.hasMapsDoc) {
-        MapData result = await _mapDataService.get(_selected.id);
+      if (travel.hasMapsDoc) {
+        MapData result = await _mapDataService.get(travel.id);
 
         _updateUi(
+            travel: travel,
             distance: result.distance,
             duration: result.duration,
             points: result.points,
@@ -149,10 +155,11 @@ class _HomePageState extends State<HomePage> {
             northeastLng: result.northeastLng);
       } else {
         Directions.DirectionsResponse result = await _directions
-            .directionsWithAddress(_selected.start, _selected.destiny,
+            .directionsWithAddress(travel.start, travel.destiny,
                 language: "pt-br");
 
         _updateUi(
+          travel: travel,
           distance: result.routes.first.legs.first.distance.text,
           duration: result.routes.first.legs.first.duration.text,
           points: result.routes.first.overviewPolyline.points,
@@ -168,9 +175,9 @@ class _HomePageState extends State<HomePage> {
 
         Timer(Duration(seconds: 1), () {
           _mapDataService.add(
-              _selected.id,
+              travel.id,
               MapData(
-                travelId: _selected.id,
+                travelId: travel.id,
                 distance: result.routes.first.legs.first.distance.text,
                 duration: result.routes.first.legs.first.duration.text,
                 points: result.routes.first.overviewPolyline.points,
@@ -184,7 +191,7 @@ class _HomePageState extends State<HomePage> {
                 northeastLng: result.routes.first.bounds.northeast.lng,
               ));
 
-          _travelService.update(_selected.id);
+          _travelService.update(travel.id);
         });
       }
     } catch (error) {
@@ -218,7 +225,7 @@ class _HomePageState extends State<HomePage> {
     } catch (error) {
       print(error);
       Scaffold.of(context).showSnackBar(SnackBar(
-          content: Text('Não foi possível executar aç������������o :(')));
+          content: Text('Não foi possível executar ação :(')));
     }
   }
 
@@ -257,7 +264,7 @@ class _HomePageState extends State<HomePage> {
                   zoomGesturesEnabled: false,
                   tiltGesturesEnabled: false,
                 ),
-                if (_selected != null) ...[
+                if (_travel != null) ...[
                   SafeArea(
                     child: Container(
                         margin: EdgeInsets.all(15.0),
@@ -267,7 +274,7 @@ class _HomePageState extends State<HomePage> {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(5.0)),
                         child: Text(
-                          _selected.title,
+                          _travel.title,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontWeight: FontWeight.w700,
@@ -287,171 +294,182 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Container(
-                                  width:
-                                      (MediaQuery.of(context).size.width / 2) -
-                                          15,
-                                  padding: EdgeInsets.all(15.0),
-                                  child: Column(
-                                    children: <Widget>[
-                                      Text(
-                                        "Local de saída",
-                                        textAlign: TextAlign.center,
+                            Container(
+                              // duration: Duration(milliseconds: 300),
+                              height: _openDetail ? MediaQuery.of(context).size.height / 1.5 : null,
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 15),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Container(
+                                            width: (MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    2) -
+                                                15,
+                                            padding: EdgeInsets.all(15.0),
+                                            child: Column(
+                                              children: <Widget>[
+                                                Text(
+                                                  "Local de saída",
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                                Text(
+                                                  _travel.start,
+                                                  overflow: _openDetail
+                                                      ? TextOverflow.visible
+                                                      : TextOverflow.ellipsis,
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Container(
+                                            width: (MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    2) -
+                                                15,
+                                            padding: EdgeInsets.all(15.0),
+                                            child: Column(
+                                              children: <Widget>[
+                                                Text(
+                                                  "Local de chegada",
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                                Text(
+                                                  _travel.destiny,
+                                                  overflow: _openDetail
+                                                      ? TextOverflow.visible
+                                                      : TextOverflow.ellipsis,
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      Text(
-                                        _selected.start,
-                                        overflow: openDetail
-                                            ? TextOverflow.visible
-                                            : TextOverflow.ellipsis,
-                                        textAlign: TextAlign.center,
+                                    ),
+                                    if (_openDetail) ...[
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 15),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Container(
+                                              width: (MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2) -
+                                                  15,
+                                              padding: EdgeInsets.all(15.0),
+                                              child: Column(
+                                                children: <Widget>[
+                                                  Text(
+                                                    "Data de saída",
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  Text(
+                                                    _travel.startDateTime,
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Container(
+                                              width: (MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2) -
+                                                  15,
+                                              padding: EdgeInsets.all(15.0),
+                                              child: Column(
+                                                children: <Widget>[
+                                                  Text(
+                                                    "Data de volta",
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  Text(
+                                                    _travel.backDateTime,
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 15),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Container(
+                                              width: (MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2) -
+                                                  15,
+                                              padding: EdgeInsets.all(15.0),
+                                              child: Column(
+                                                children: <Widget>[
+                                                  Text(
+                                                    "Total de vagas",
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  Text(
+                                                    _travel.vagas,
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Container(
+                                              width: (MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2) -
+                                                  15,
+                                              padding: EdgeInsets.all(15.0),
+                                              child: Column(
+                                                children: <Widget>[
+                                                  Text(
+                                                    "Preço",
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  Text(
+                                                    "R\$" + _travel.price,
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        width: MediaQuery.of(context).size.width,
+                                        padding: EdgeInsets.all(15.0),
+                                        child: Text(_travel.description,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 10,
+                                            textAlign: TextAlign.center),
+                                      )
                                     ],
-                                  ),
+                                  ],
                                 ),
-                                Container(
-                                  width:
-                                      (MediaQuery.of(context).size.width / 2) -
-                                          15,
-                                  padding: EdgeInsets.all(15.0),
-                                  child: Column(
-                                    children: <Widget>[
-                                      Text(
-                                        "Local de chegada",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      Text(
-                                        _selected.destiny,
-                                        overflow: openDetail
-                                            ? TextOverflow.visible
-                                            : TextOverflow.ellipsis,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                            if (openDetail) ...[
-                              Container(
-                                height: 2,
-                                width: 50,
-                                color: Colors.deepPurple,
-                                margin: EdgeInsets.symmetric(vertical: 5.0),
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                    width: (MediaQuery.of(context).size.width /
-                                            2) -
-                                        15,
-                                    padding: EdgeInsets.all(15.0),
-                                    child: Column(
-                                      children: <Widget>[
-                                        Text(
-                                          "Data de saída",
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        Text(
-                                          _selected.startDateTime,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    width: (MediaQuery.of(context).size.width /
-                                            2) -
-                                        15,
-                                    padding: EdgeInsets.all(15.0),
-                                    child: Column(
-                                      children: <Widget>[
-                                        Text(
-                                          "Data de volta",
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        Text(
-                                          _selected.backDateTime,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                height: 2,
-                                width: 50,
-                                color: Colors.deepPurple,
-                                margin: EdgeInsets.symmetric(vertical: 5.0),
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                    width: (MediaQuery.of(context).size.width /
-                                            2) -
-                                        15,
-                                    padding: EdgeInsets.all(15.0),
-                                    child: Column(
-                                      children: <Widget>[
-                                        Text(
-                                          "Total de vagas",
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        Text(
-                                          _selected.vagas,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    width: (MediaQuery.of(context).size.width /
-                                            2) -
-                                        15,
-                                    padding: EdgeInsets.all(15.0),
-                                    child: Column(
-                                      children: <Widget>[
-                                        Text(
-                                          "Preço",
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        Text(
-                                          "R\$" + _selected.price,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                height: 2,
-                                width: 50,
-                                color: Colors.deepPurple,
-                                margin: EdgeInsets.symmetric(vertical: 5.0),
-                              ),
-                              Container(
-                                width: MediaQuery.of(context).size.width,
-                                padding: EdgeInsets.all(15.0),
-                                child: Text(
-                                      _selected.description,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 10,
-                                      textAlign: TextAlign.center
-                                    ),
-                              ),
-                              Container(
-                                height: 2,
-                                width: 50,
-                                color: Colors.deepPurple,
-                                margin: EdgeInsets.symmetric(vertical: 5.0),
-                              ),
-                            ],
                             Container(
                                 width: MediaQuery.of(context).size.width,
                                 child: FlatButton(
@@ -460,7 +478,7 @@ class _HomePageState extends State<HomePage> {
                                   padding: EdgeInsets.symmetric(vertical: 15.0),
                                   onPressed: () {
                                     setState(() {
-                                      openDetail = !openDetail;
+                                      _openDetail = !_openDetail;
                                     });
                                   },
                                   child: Text(
@@ -468,7 +486,6 @@ class _HomePageState extends State<HomePage> {
                                     style:
                                         TextStyle(fontWeight: FontWeight.w700),
                                   ),
-//                                  color: Colors.red,
                                 )),
                           ],
                         )),
@@ -478,18 +495,18 @@ class _HomePageState extends State<HomePage> {
             ),
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.centerDocked,
-            floatingActionButton: _selected == null
+            floatingActionButton: _travel == null
                 ? FloatingActionButton.extended(
                     heroTag: null,
                     elevation: 4.0,
                     label: const Text('Pesquisar'),
                     icon: const Icon(Icons.search),
                     onPressed: () async {
-                      _selected = await Navigator.of(context).push(
+                      Travel travel = await Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (context) => SearchTravels()));
 
-                      _loadUi();
+                      _loadUi(travel);
                     },
                   )
                 : Container(
@@ -503,7 +520,7 @@ class _HomePageState extends State<HomePage> {
                           label: const Text('Quero'),
                           icon: const Icon(Icons.send),
                           onPressed: () {
-                            _openWhats(_selected.phone, _selected.title);
+                            _openWhats(_travel.phone, _travel.title);
                           },
                         ),
                         FloatingActionButton.extended(
@@ -513,10 +530,10 @@ class _HomePageState extends State<HomePage> {
                           icon: const Icon(Icons.close),
                           onPressed: () {
                             setState(() {
-                              _selected = null;
+                              _travel = null;
                               _distance = null;
                               _duration = null;
-                              openDetail = false;
+                              _openDetail = false;
                               markers = {};
                               polylines = {};
                             });
