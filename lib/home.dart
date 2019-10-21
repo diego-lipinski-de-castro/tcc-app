@@ -259,10 +259,10 @@ class _HomePageState extends State<HomePage> {
                   mapType: MapType.normal,
                   markers: markers,
                   polylines: polylines,
-                  rotateGesturesEnabled: false,
-                  scrollGesturesEnabled: false,
-                  zoomGesturesEnabled: false,
-                  tiltGesturesEnabled: false,
+                  // rotateGesturesEnabled: false,
+                  // scrollGesturesEnabled: false,
+                  // zoomGesturesEnabled: false,
+                  // tiltGesturesEnabled: false,
                 ),
                 if (_travel != null) ...[
                   SafeArea(
@@ -296,7 +296,7 @@ class _HomePageState extends State<HomePage> {
                           children: <Widget>[
                             Container(
                               // duration: Duration(milliseconds: 300),
-                              height: _openDetail ? MediaQuery.of(context).size.height / 1.5 : null,
+                              height: _openDetail ? MediaQuery.of(context).size.height / 1.6 : null,
                               child: SingleChildScrollView(
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,

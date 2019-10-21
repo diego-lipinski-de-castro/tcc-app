@@ -36,11 +36,12 @@ dependencies:
   connectivity: ^0.4.4
   keyboard_visibility: any
   url_launcher: ^5.1.4
-  flutter_flipperkit: ^0.0.18
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  flutter_launcher_icons: ^0.7.3
 
 
 # For information on the generic Dart part of this file, see the
@@ -86,3 +87,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.io/custom-fonts/#from-packages
+
+flutter_icons:
+  # image_path: "assets/launcher_icons/icon-128x128.png"
+  #"assets/launcher_icons/icon-710x599-android.png"
+  image_path_android: "assets/images/launcher_icons/icon.png"
+  image_path_ios: "assets/images/launcher_icons/icon.png"
+  android: true
+  ios: true
