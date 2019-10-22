@@ -123,14 +123,6 @@ class _ListTravelPageState extends State<ListTravelPage> {
                                         );
                                       });
                                 },
-                                onTap: () {
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) => EditTravelPage(
-                                  //               docID: _results.elementAt(index)?.id,
-                                  //             )));
-                                },
                                 child: Container(
                                     margin: EdgeInsets.only(
                                         top: 15.0,

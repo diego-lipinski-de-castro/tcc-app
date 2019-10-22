@@ -11,6 +11,7 @@ class AddTravelPage extends StatefulWidget {
 }
 
 class _AddTravelPageState extends State<AddTravelPage> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   TravelService _travelService = TravelService();
 
@@ -102,234 +103,293 @@ class _AddTravelPageState extends State<AddTravelPage> {
   }
 
   _createTravel() {
-    Travel travel = Travel(
-      title: _titleController.text,
-      start: _startingPlaceField.text,
-      destiny: _destinationPlaceField.text,
-      startDateTime: _startDateTimeField.text,
-      backDateTime: _backDateTimeField.text,
-      vagas: _vagasField.text, 
-      price: _priceField.text,
-      description: _descriptionField.text
-    );
+    if(_formKey.currentState.validate()) {
+      Travel travel = Travel(
+        title: _titleController.text,
+        start: _startingPlaceField.text,
+        destiny: _destinationPlaceField.text,
+        startDateTime: _startDateTimeField.text,
+        backDateTime: _backDateTimeField.text,
+        vagas: _vagasField.text, 
+        price: _priceField.text,
+        description: _descriptionField.text
+      );
 
-   _travelService.add(travel);
-
-   Navigator.of(context).pop();
+      if(travel.isValid()) {
+        _travelService.add(travel);
+        Navigator.of(context).pop();
+      } else {
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: Text("Preencha todos os campos obrigatórios!")));
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Cadastrar uma excursão'),
       ),
       body: Form(
         key: _formKey,
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                TextFormField(
-                  controller: _titleController,
-                  autocorrect: false,
-                  decoration: InputDecoration(
-                    hasFloatingPlaceholder: false,
-                    labelText: "Título (nome do evento)",
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.help),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              content: Text("O título será usado para as pessoas pesquisarem e encontraram sua excursão, pode usar o nome do evento por exemplo."),
-                              actions: <Widget>[
-                                FlatButton(
-                                  child: Text("Entendi"),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                )
-                              ],
-                            );
-                          }
-                        );
-                      },
-                    )
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 30.0),
-                ),
-                GestureDetector(
-                  onTap: () async {
-                    _start = await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => SearchPlacesPage()));
+        child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
+              child: Column(
+                children: <Widget>[
+                  TextFormField(
+                    controller: _titleController,
+                    validator: (value) {
+                      if(value.isEmpty) {
+                        return 'Campo obrigatório';
+                      }
 
-                    _startingPlaceField.text = _start?.description;
-                  },
-                  child: Container(
-                    color: Colors.transparent,
-                    child: IgnorePointer(
-                      child: TextFormField(
-                        controller: _startingPlaceField,
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          hasFloatingPlaceholder: false,
-                          labelText: "Local de saída",
-                          suffixIcon: Icon(Icons.location_on)
+                      return null;
+                    },
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                      hasFloatingPlaceholder: false,
+                      labelText: "Título (nome do evento)",
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.help),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: Text("O título será usado para as pessoas pesquisarem e encontraram sua excursão, pode usar o nome do evento por exemplo."),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    child: Text("Entendi"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  )
+                                ],
+                              );
+                            }
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 30.0),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      _start = await Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => SearchPlacesPage()));
+
+                      _startingPlaceField.text = _start?.description;
+                    },
+                    child: Container(
+                      color: Colors.transparent,
+                      child: IgnorePointer(
+                        child: TextFormField(
+                          controller: _startingPlaceField,
+                          validator: (value) {
+                            if(value.isEmpty) {
+                              return 'Campo obrigatório';
+                            }
+
+                            return null;
+                          },
+                          readOnly: true,
+                          decoration: InputDecoration(
+                            hasFloatingPlaceholder: false,
+                            labelText: "Local de saída",
+                            suffixIcon: Icon(Icons.location_on),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 30.0),
-                ),
-                GestureDetector(
-                  onTap: () async {
-                    _destination = await Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (context) => SearchPlacesPage()));
-                    _destinationPlaceField.text = _destination.description;
-                  },
-                  child: Container(
-                    color: Colors.transparent,
-                    child: IgnorePointer(
-                      child: TextFormField(
-                        controller: _destinationPlaceField,
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          hasFloatingPlaceholder: false,
-                          labelText: "Destino (localização do evento)",
-                          suffixIcon: Icon(Icons.location_on)
+                  Padding(
+                    padding: EdgeInsets.only(top: 30.0),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      _destination = await Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => SearchPlacesPage()));
+                      _destinationPlaceField.text = _destination.description;
+                    },
+                    child: Container(
+                      color: Colors.transparent,
+                      child: IgnorePointer(
+                        child: TextFormField(
+                          controller: _destinationPlaceField,
+                          validator: (value) {
+                            if(value.isEmpty) {
+                              return 'Campo obrigatório';
+                            }
+
+                            return null;
+                          },
+                          readOnly: true,
+                          decoration: InputDecoration(
+                            hasFloatingPlaceholder: false,
+                            labelText: "Destino (localização do evento)",
+                            suffixIcon: Icon(Icons.location_on)
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 30.0),
-                ),
-                GestureDetector(
-                  onTap: () async {
-                    var datetime = await _getDateTime(_startDate, _startTime);
+                  Padding(
+                    padding: EdgeInsets.only(top: 30.0),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      var datetime = await _getDateTime(_startDate, _startTime);
 
-                    if(datetime == null) {
-                      return;
-                    }
+                      if(datetime == null) {
+                        return;
+                      }
 
-                    _startDate = datetime['date'];
-                    _startTime = datetime['time'];
+                      _startDate = datetime['date'];
+                      _startTime = datetime['time'];
 
-                    var startDayText = _startDate.day > 9 ? _startDate.day : "0${_startDate.day}";
-                    var startMonthText = _startDate.month > 9 ? _startDate.month : "0${_startDate.month}";
+                      var startDayText = _startDate.day > 9 ? _startDate.day : "0${_startDate.day}";
+                      var startMonthText = _startDate.month > 9 ? _startDate.month : "0${_startDate.month}";
 
-                    var startHourText = _startTime.hour > 9 ? _startTime.hour : "0${_startTime.hour}";
-                    var startMinuteText = _startTime.minute > 9 ? _startTime.minute : "0${_startTime.minute}";
+                      var startHourText = _startTime.hour > 9 ? _startTime.hour : "0${_startTime.hour}";
+                      var startMinuteText = _startTime.minute > 9 ? _startTime.minute : "0${_startTime.minute}";
 
-                    var startDateText = '$startDayText/$startMonthText';
-                    var startTimeText = '$startHourText:$startMinuteText';
+                      var startDateText = '$startDayText/$startMonthText';
+                      var startTimeText = '$startHourText:$startMinuteText';
 
-                    _startDateTimeField.text = '$startDateText $startTimeText';
-                  },
-                  child: Container(
-                    color: Colors.transparent,
-                    child: IgnorePointer(
-                      child: TextFormField(
-                        controller: _startDateTimeField,
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          hasFloatingPlaceholder: false,
-                          labelText: "Data e horário de saida",
-                          suffixIcon: Icon(Icons.calendar_today)
+                      _startDateTimeField.text = '$startDateText $startTimeText';
+                    },
+                    child: Container(
+                      color: Colors.transparent,
+                      child: IgnorePointer(
+                        child: TextFormField(
+                          controller: _startDateTimeField,
+                          validator: (value) {
+                            if(value.isEmpty) {
+                              return 'Campo obrigatório';
+                            }
+
+                            return null;
+                          },
+                          readOnly: true,
+                          decoration: InputDecoration(
+                            hasFloatingPlaceholder: false,
+                            labelText: "Data e horário de saida",
+                            suffixIcon: Icon(Icons.calendar_today)
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 30.0),
-                ),
-                GestureDetector(
-                  onTap: () async {
-                    var datetime = await _getDateTime(_backDate, _backTime);
+                  Padding(
+                    padding: EdgeInsets.only(top: 30.0),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      var datetime = await _getDateTime(_backDate, _backTime);
 
-                    if(datetime == null) {
-                      return;
-                    }
+                      if(datetime == null) {
+                        return;
+                      }
 
-                    _backDate = datetime['date'];
-                    _backTime = datetime['time'];
+                      _backDate = datetime['date'];
+                      _backTime = datetime['time'];
 
-                    var backDayText = _backDate.day > 9 ? _backDate.day : "0${_backDate.day}";
-                    var backMonthText = _backDate.month > 9 ? _backDate.month : "0${_backDate.month}";
+                      var backDayText = _backDate.day > 9 ? _backDate.day : "0${_backDate.day}";
+                      var backMonthText = _backDate.month > 9 ? _backDate.month : "0${_backDate.month}";
 
-                    var backHourText = _backTime.hour > 9 ? _backTime.hour : "0${_backTime.hour}";
-                    var backMinuteText = _backTime.minute > 9 ? _backTime.minute : "0${_backTime.minute}";
+                      var backHourText = _backTime.hour > 9 ? _backTime.hour : "0${_backTime.hour}";
+                      var backMinuteText = _backTime.minute > 9 ? _backTime.minute : "0${_backTime.minute}";
 
-                    var backDateText = '$backDayText/$backMonthText';
-                    var backTimeText = '$backHourText:$backMinuteText';
+                      var backDateText = '$backDayText/$backMonthText';
+                      var backTimeText = '$backHourText:$backMinuteText';
 
-                    _backDateTimeField.text = '$backDateText $backTimeText';
-                  },
-                  child: Container(
-                    color: Colors.transparent,
-                    child: IgnorePointer(
-                      child: TextFormField(
-                        controller: _backDateTimeField,
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          hasFloatingPlaceholder: false,
-                          labelText: "Data e horário de volta",
-                          suffixIcon: Icon(Icons.calendar_today)
+                      _backDateTimeField.text = '$backDateText $backTimeText';
+                    },
+                    child: Container(
+                      color: Colors.transparent,
+                      child: IgnorePointer(
+                        child: TextFormField(
+                          controller: _backDateTimeField,
+                          validator: (value) {
+                            if(value.isEmpty) {
+                              return 'Campo obrigatório';
+                            }
+
+                            return null;
+                          },
+                          readOnly: true,
+                          decoration: InputDecoration(
+                            hasFloatingPlaceholder: false,
+                            labelText: "Data e horário de volta",
+                            suffixIcon: Icon(Icons.calendar_today)
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 30.0),
-                ),
-                TextFormField(
-                  controller: _vagasField,
-                  decoration: InputDecoration(
-                    hasFloatingPlaceholder: false,
-                    labelText: "Número total de vagas"
+                  Padding(
+                    padding: EdgeInsets.only(top: 30.0),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 30.0),
-                ),
-                TextFormField(
-                  controller: _priceField,
-                  decoration: InputDecoration(
-                    hasFloatingPlaceholder: false,
-                    labelText: "Preço da excursão"
+                  TextFormField(
+                    controller: _vagasField,
+                    validator: (value) {
+                      if(value.isEmpty) {
+                        return 'Campo obrigatório';
+                      }
+
+                      return null;
+                    },
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hasFloatingPlaceholder: false,
+                      labelText: "Número total de vagas"
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 30.0),
-                ),
-                TextFormField(
-                  controller: _descriptionField,
-                  maxLength: 400,
-                  minLines: 1,
-                  maxLines: 8,
-                  decoration: InputDecoration(
-                    hasFloatingPlaceholder: false,
-                    labelText: "Descrição"
+                  Padding(
+                    padding: EdgeInsets.only(top: 30.0),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 75.0),
-                ),
-              ],
+                  TextFormField(
+                    controller: _priceField,
+                    validator: (value) {
+                      if(value.isEmpty) {
+                        return 'Campo obrigatório';
+                      }
+
+                      return null;
+                    },
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hasFloatingPlaceholder: false,
+                      labelText: "Preço da excursão"
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 30.0),
+                  ),
+                  TextFormField(
+                    controller: _descriptionField,
+                    maxLength: 400,
+                    minLines: 1,
+                    maxLines: 8,
+                    textInputAction: TextInputAction.done,
+                    decoration: InputDecoration(
+                      hasFloatingPlaceholder: false,
+                      labelText: "Descrição"
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 75.0),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
       ),
       floatingActionButton: Visibility(
         visible: !_keyboardVisible,

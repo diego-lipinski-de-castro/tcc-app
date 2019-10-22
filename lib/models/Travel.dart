@@ -53,4 +53,20 @@ class Travel {
       hasMapsDoc: data['hasMapsDoc'] ?? false,
     );
   }
+
+  bool isValid() {
+    if(
+      this.title.trim() == ''
+      || this.start.trim() == ''
+      || this.destiny.trim() == ''
+      || this.startDateTime.trim() == ''
+      || this.backDateTime.trim() == ''
+      || this.vagas.trim() == ''
+      || this.price.trim() == ''
+    ) {
+      return false;
+    }
+
+    return true;
+  }
 }

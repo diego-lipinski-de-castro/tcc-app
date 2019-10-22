@@ -53,6 +53,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
+    Geolocator().forceAndroidLocationManager = true;
   }
 
   @override
@@ -66,11 +68,16 @@ class _HomePageState extends State<HomePage> {
     bool hasPermission = await Permission.checkAndRequestLocation();
     _hasPermission = hasPermission;
 
+    Position location;
+
     if (hasPermission) {
-      Position location = await _getCurrentLocation();
-      _initialPosition = CameraPosition(
-          target: LatLng(location.latitude, location.longitude), zoom: 15);
+      location = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    } else {
+      location = await Geolocator().getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
     }
+
+    _initialPosition = CameraPosition(
+        target: LatLng(location.latitude, location.longitude), zoom: 10);
 
     _defaultPosition = _initialPosition;
 
@@ -78,13 +85,6 @@ class _HomePageState extends State<HomePage> {
         _initialPosition.target, _initialPosition.zoom));
 
     setState(() {});
-  }
-
-  Future<Position> _getCurrentLocation() async {
-    Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-
-    return position;
   }
 
   _updateUi(
@@ -207,9 +207,6 @@ class _HomePageState extends State<HomePage> {
     String whatsUrl = 'https://wa.me/$phoneNumber/?text=$text';
     String url = 'tel:$phoneNumber';
 
-    print('url');
-    print(url);
-
     try {
       bool canWhats = await canLaunch(whatsUrl);
 
@@ -224,8 +221,8 @@ class _HomePageState extends State<HomePage> {
       }
     } catch (error) {
       print(error);
-      Scaffold.of(context).showSnackBar(SnackBar(
-          content: Text('Não foi possível executar ação :(')));
+      Scaffold.of(context).showSnackBar(
+          SnackBar(content: Text('Não foi possível executar ação :(')));
     }
   }
 
@@ -235,7 +232,8 @@ class _HomePageState extends State<HomePage> {
         stream: _authService.userStream,
         builder: (context, snapshot) {
           ConnectionState state = snapshot.connectionState;
-          bool loggedIn = _authService.user != null;
+          FirebaseUser user = _authService.user;
+          bool loggedIn = user != null;
 
           if (state == ConnectionState.waiting) {
             return Center(
@@ -296,13 +294,16 @@ class _HomePageState extends State<HomePage> {
                           children: <Widget>[
                             Container(
                               // duration: Duration(milliseconds: 300),
-                              height: _openDetail ? MediaQuery.of(context).size.height / 1.6 : null,
+                              height: _openDetail
+                                  ? MediaQuery.of(context).size.height / 1.6
+                                  : null,
                               child: SingleChildScrollView(
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: <Widget>[
                                     Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 15),
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 15),
                                       child: Row(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
@@ -458,7 +459,8 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       ),
                                       Container(
-                                        width: MediaQuery.of(context).size.width,
+                                        width:
+                                            MediaQuery.of(context).size.width,
                                         padding: EdgeInsets.all(15.0),
                                         child: Text(_travel.description,
                                             overflow: TextOverflow.ellipsis,
@@ -506,7 +508,9 @@ class _HomePageState extends State<HomePage> {
                           MaterialPageRoute(
                               builder: (context) => SearchTravels()));
 
-                      _loadUi(travel);
+                      if(travel != null) {
+                        _loadUi(travel);
+                      }
                     },
                   )
                 : Container(
@@ -554,18 +558,33 @@ class _HomePageState extends State<HomePage> {
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.account_circle),
-                        onPressed: () {
-                          if (loggedIn) {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => ProfilePage()));
-                          } else {
+                      if (!loggedIn) ...[
+                        IconButton(
+                          icon: Icon(Icons.account_circle),
+                          onPressed: () {
                             _authService.googleSignIn();
-                          }
-                        },
-                      ),
+                          },
+                        ),
+                      ],
                       if (loggedIn) ...[
+                        RawMaterialButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ProfilePage()));
+                          },
+                          constraints: BoxConstraints(),
+                          padding: EdgeInsets.zero,
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: SizedBox(
+                              height: 30,
+                              width: 30,
+                              child: CircleAvatar(
+                                backgroundImage: NetworkImage(user.photoUrl),
+                              ),
+                            ),
+                          ),
+                        ),
                         IconButton(
                           icon: Icon(Icons.menu),
                           onPressed: () {
