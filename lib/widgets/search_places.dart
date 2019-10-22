@@ -57,12 +57,12 @@ class _SearchPlacesPageState extends State<SearchPlacesPage> {
           autocorrect: false,
           autofocus: true,
           onChanged: (text) {
-            if(text.length < 3) return;
-            
+            if (text.length < 3) return;
+
             if (_debounce?.isActive ?? false) _debounce.cancel();
-            
+
             _debounce = Timer(Duration(milliseconds: 600), () {
-                _handleSearch(text);
+              _handleSearch(text);
             });
           },
           onSubmitted: (text) {
@@ -83,16 +83,16 @@ class _SearchPlacesPageState extends State<SearchPlacesPage> {
         ],
       ),
       body: ListView.builder(
-        itemCount: _results.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-              contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-              title: Text(_results.elementAt(index)?.description),
-              onTap: () {
-                Navigator.pop(context, _results.elementAt(index));
-              });
-        }
-      ),
+          itemCount: _results.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                title: Text(_results.elementAt(index)?.description),
+                onTap: () {
+                  Navigator.pop(context, _results.elementAt(index));
+                });
+          }),
       bottomNavigationBar: BottomAppBar(
         child: Padding(
           padding: EdgeInsets.only(top: 15.0),

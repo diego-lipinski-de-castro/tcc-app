@@ -1,22 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Travel {
-  Travel({
-    this.id,
-    this.title,
-    this.start,
-    this.destiny,
-    this.startDateTime,
-    this.backDateTime,
-    this.vagas,
-    this.price,
-    this.description,
-    this.createdAt,
-    this.createdBy,
-    this.phone,
-    this.titleKey,
-    this.hasMapsDoc
-  });
+  Travel(
+      {this.id,
+      this.title,
+      this.start,
+      this.destiny,
+      this.startDateTime,
+      this.backDateTime,
+      this.vagas,
+      this.price,
+      this.description,
+      this.createdAt,
+      this.createdBy,
+      this.phone,
+      this.titleKey,
+      this.hasMapsDoc});
 
   final String id;
   final String title;
@@ -55,15 +54,13 @@ class Travel {
   }
 
   bool isValid() {
-    if(
-      this.title.trim() == ''
-      || this.start.trim() == ''
-      || this.destiny.trim() == ''
-      || this.startDateTime.trim() == ''
-      || this.backDateTime.trim() == ''
-      || this.vagas.trim() == ''
-      || this.price.trim() == ''
-    ) {
+    if (this.title.trim() == '' ||
+        this.start.trim() == '' ||
+        this.destiny.trim() == '' ||
+        this.startDateTime.trim() == '' ||
+        this.backDateTime.trim() == '' ||
+        this.vagas.trim() == '' ||
+        this.price.trim() == '') {
       return false;
     }
 

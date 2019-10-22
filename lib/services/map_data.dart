@@ -10,7 +10,7 @@ class MapDataService {
     try {
       await collection.document(travelDocID).setData({
         'travelId': mapData.travelId,
-        'distance': mapData.distance, 
+        'distance': mapData.distance,
         'duration': mapData.duration,
         'points': mapData.points,
         'startLat': mapData.startLat,
@@ -32,7 +32,8 @@ class MapDataService {
 
   Future<MapData> get(String docID) async {
     try {
-      MapData mapData = MapData.fromFirestore(await collection.document(docID).get());
+      MapData mapData =
+          MapData.fromFirestore(await collection.document(docID).get());
 
       return mapData;
     } catch (error) {

@@ -192,17 +192,16 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       Container(
-                        margin: EdgeInsets.only(top: 15),
-                        width: MediaQuery.of(context).size.width,
-                        child: RaisedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            _authService.googleSignOut();
-                          },
-                          child: Text("Sair"),
-                          padding: EdgeInsets.all(15.0),
-                        )
-                      )
+                          margin: EdgeInsets.only(top: 15),
+                          width: MediaQuery.of(context).size.width,
+                          child: RaisedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              _authService.googleSignOut();
+                            },
+                            child: Text("Sair"),
+                            padding: EdgeInsets.all(15.0),
+                          ))
                     ],
                   ),
                 ),

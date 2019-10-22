@@ -71,9 +71,11 @@ class _HomePageState extends State<HomePage> {
     Position location;
 
     if (hasPermission) {
-      location = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      location = await Geolocator()
+          .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     } else {
-      location = await Geolocator().getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
+      location = await Geolocator()
+          .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
     }
 
     _initialPosition = CameraPosition(
@@ -508,7 +510,7 @@ class _HomePageState extends State<HomePage> {
                           MaterialPageRoute(
                               builder: (context) => SearchTravels()));
 
-                      if(travel != null) {
+                      if (travel != null) {
                         _loadUi(travel);
                       }
                     },
@@ -570,7 +572,7 @@ class _HomePageState extends State<HomePage> {
                         RawMaterialButton(
                           onPressed: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ProfilePage()));
+                                builder: (context) => ProfilePage()));
                           },
                           constraints: BoxConstraints(),
                           padding: EdgeInsets.zero,

@@ -7,7 +7,7 @@ class TravelService {
   static final path = 'travels';
   static final Firestore _db = Firestore.instance;
   static final collection = _db.collection(path);
-  
+
   Future<bool> update(String docID) async {
     try {
       await collection.document(docID).updateData({'hasMapsDoc': true});
@@ -22,7 +22,7 @@ class TravelService {
   Future<bool> delete(String uid) async {
     try {
       await collection.document(uid).delete();
-      
+
       return true;
     } catch (error) {
       print(error);
@@ -31,14 +31,13 @@ class TravelService {
   }
 
   Future<bool> add(Travel travel) async {
-    
     FirebaseUser user = await AuthService().currentUser();
 
     if (user == null) {
       return false;
     }
 
-    if(user?.phoneNumber == null) {
+    if (user?.phoneNumber == null) {
       return false;
     }
 
@@ -86,13 +85,14 @@ class TravelService {
   Future<List<Travel>> getAllByUser() async {
     FirebaseUser user = await AuthService().currentUser();
 
-    if(user == null) {
+    if (user == null) {
       return [];
     }
 
     try {
-      QuerySnapshot snapshot =
-          await collection.where('createdBy', isEqualTo: user.uid).getDocuments();
+      QuerySnapshot snapshot = await collection
+          .where('createdBy', isEqualTo: user.uid)
+          .getDocuments();
 
       return snapshot.documents
           .map((DocumentSnapshot _doc) => Travel.fromFirestore(_doc))

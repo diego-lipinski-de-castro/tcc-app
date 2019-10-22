@@ -2,7 +2,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 // https://github.com/Santos-Enoque/uber_clone_with_flutter/blob/master/lib/states/app_state.dart
 class MapsHelper {
-  
   static List<LatLng> convertToLatLng(List points) {
     List<LatLng> result = <LatLng>[];
     for (int i = 0; i < points.length; i++) {
@@ -19,7 +18,7 @@ class MapsHelper {
     int index = 0;
     int len = poly.length;
     int c = 0;
-    
+
     // repeating until all attributes are decoded
     do {
       var shift = 0;
@@ -32,7 +31,7 @@ class MapsHelper {
         index++;
         shift++;
       } while (c >= 32);
-      
+
       /* if value is negetive then bitwise not the value */
       if (result & 1 == 1) {
         result = ~result;
