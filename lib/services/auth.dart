@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:rxdart/rxdart.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -9,12 +8,12 @@ class AuthService {
   String _verificationId;
 
   FirebaseUser user;
-  Observable<FirebaseUser> userStream;
+  Stream<FirebaseUser> userStream;
 
   AuthService() {
     _firebaseAuth.setLanguageCode('pt-br');
 
-    userStream = Observable(_firebaseAuth.onAuthStateChanged);
+    userStream = _firebaseAuth.onAuthStateChanged;
 
     _firebaseAuth.onAuthStateChanged.listen((FirebaseUser firebaseUser) {
       user = firebaseUser;

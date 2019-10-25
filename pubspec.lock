@@ -129,7 +129,7 @@ packages:
       name: google_maps_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.21+6"
+    version: "0.5.21+8"
   google_maps_webservice:
     dependency: "direct main"
     description:
@@ -228,13 +228,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.5"
-  rxdart:
-    dependency: "direct main"
-    description:
-      name: rxdart
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.22.2"
   sky_engine:
     dependency: transitive
     description: flutter
