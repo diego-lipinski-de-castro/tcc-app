@@ -2,15 +2,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  static final AuthService _authService = AuthService._internal();
+  static final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   String _verificationId;
 
-  FirebaseUser user;
-  Stream<FirebaseUser> userStream;
+  static FirebaseUser user;
+  static Stream<FirebaseUser> userStream;
 
-  AuthService() {
+  factory AuthService.singleton() {
     _firebaseAuth.setLanguageCode('pt-br');
 
     userStream = _firebaseAuth.onAuthStateChanged;
@@ -18,7 +19,11 @@ class AuthService {
     _firebaseAuth.onAuthStateChanged.listen((FirebaseUser firebaseUser) {
       user = firebaseUser;
     });
+
+    return _authService;
   }
+
+  AuthService._internal();
 
   Future<FirebaseUser> currentUser() async {
     try {
@@ -35,6 +40,8 @@ class AuthService {
           verificationId: _verificationId, smsCode: smsCode);
 
       await user.updatePhoneNumberCredential(phoneAuthProvider);
+
+      _verificationId = null;
 
       return true;
     } catch (error) {

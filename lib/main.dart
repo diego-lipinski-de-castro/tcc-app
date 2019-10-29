@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tcc/pages/list_travels.dart';
+import 'package:tcc/pages/profile.dart';
 import 'home.dart';
 
 void main() => runApp(MyApp());
@@ -13,7 +15,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.deepPurple,
         fontFamily: 'Open Sans',
       ),
-      home: HomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => HomePage(),
+        '/profile': (context) => ProfilePage(),
+        '/my-travels': (context) => ListTravelPage(),
+      },
     );
   }
 }

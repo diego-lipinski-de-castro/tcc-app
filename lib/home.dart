@@ -26,7 +26,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
 
-  AuthService _authService = AuthService();
+  AuthService _authService = AuthService.singleton();
   TravelService _travelService = TravelService();
   MapDataService _mapDataService = MapDataService();
 
@@ -231,17 +231,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<FirebaseUser>(
-        stream: _authService.userStream,
+        stream: AuthService.userStream,
         builder: (context, snapshot) {
-          ConnectionState state = snapshot.connectionState;
-          FirebaseUser user = _authService.user;
+          FirebaseUser user = AuthService.user;
           bool loggedIn = user != null;
-
-          if (state == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
 
           return Scaffold(
             key: _scaffoldKey,
@@ -571,8 +564,7 @@ class _HomePageState extends State<HomePage> {
                       if (loggedIn) ...[
                         RawMaterialButton(
                           onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => ProfilePage()));
+                            Navigator.pushNamed(context, '/profile');
                           },
                           constraints: BoxConstraints(),
                           padding: EdgeInsets.zero,

@@ -17,7 +17,6 @@ class _ListTravelPageState extends State<ListTravelPage> {
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
   TravelService _travelService = TravelService();
-  AuthService _authService = AuthService();
 
   bool _loading = false;
 
@@ -46,11 +45,11 @@ class _ListTravelPageState extends State<ListTravelPage> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<FirebaseUser>(
-      stream: _authService.userStream,
+      stream: AuthService.userStream,
       builder: (streamContext, snapshot) {
         ConnectionState state = snapshot.connectionState;
-        bool loggedIn = _authService.user != null;
-        FirebaseUser user = _authService.user;
+        bool loggedIn = AuthService.user != null;
+        FirebaseUser user = AuthService.user;
         bool isPhoneVerified = user?.phoneNumber != null;
 
         return Scaffold(
@@ -246,9 +245,7 @@ class _ListTravelPageState extends State<ListTravelPage> {
                               child: Text("Verificar"),
                               onPressed: () async {
                                 Navigator.of(dialogContext).pop();
-                                await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                        builder: (context) => ProfilePage()));
+                                await Navigator.pushNamed(context, '/profile');
                               },
                             )
                           ],
