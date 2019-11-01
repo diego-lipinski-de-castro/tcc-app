@@ -31,7 +31,7 @@ class TravelService {
   }
 
   Future<bool> add(Travel travel) async {
-    FirebaseUser user = await AuthService().currentUser();
+    FirebaseUser user = await AuthService.singleton().currentUser();
 
     if (user == null) {
       return false;
@@ -83,7 +83,7 @@ class TravelService {
   }
 
   Future<List<Travel>> getAllByUser() async {
-    FirebaseUser user = await AuthService().currentUser();
+    FirebaseUser user = await AuthService.singleton().currentUser();
 
     if (user == null) {
       return [];
