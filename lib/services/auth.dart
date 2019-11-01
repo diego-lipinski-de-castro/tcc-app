@@ -36,10 +36,10 @@ class AuthService {
 
   Future<bool> confirmPhone(smsCode) async {
     try {
-      AuthCredential phoneAuthProvider = PhoneAuthProvider.getCredential(
+      AuthCredential phoneAuthCredential = PhoneAuthProvider.getCredential(
           verificationId: _verificationId, smsCode: smsCode);
 
-      await user.updatePhoneNumberCredential(phoneAuthProvider);
+      await user.updatePhoneNumberCredential(phoneAuthCredential);
 
       _verificationId = null;
 

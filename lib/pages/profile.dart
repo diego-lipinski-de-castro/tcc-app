@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:tcc/home.dart';
 import '../services/auth.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -15,106 +14,131 @@ class _ProfilePageState extends State<ProfilePage> {
   TextEditingController _phoneField = TextEditingController();
   TextEditingController _smsCodeField = TextEditingController();
 
+  FirebaseUser _user;
+  bool _loading;
+
+  @override
+  void initState() {
+    super.initState();
+
+    getUser();
+  }
+
+  getUser() async {
+    setState(() {
+      _loading = true;
+    });
+    FirebaseUser user = await _authService.currentUser();
+
+    setState(() {
+      _user = user;
+      _loading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<FirebaseUser>(
-          stream: AuthService.userStream,
-          builder: (context, snapshot) {
-            ConnectionState state = snapshot.connectionState;
-            bool loggedIn = AuthService.user != null;
-            FirebaseUser user = AuthService.user;
-            bool isPhoneVerified = user?.phoneNumber != null;
+    bool loggedIn = _user != null;
+    bool isPhoneVerified = _user?.phoneNumber != null;
 
-            if (state == ConnectionState.waiting) {
-              return Center(
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Perfil"),
+        ),
+        body: Stack(
+          children: <Widget>[
+            if (_loading) ...[
+              Center(
                 child: CircularProgressIndicator(),
-              );
-            }
-
-            if (!loggedIn) {
-              return Container();
-            }
-
-            return Scaffold(
-                appBar: AppBar(
-                  title: Text("Perfil"),
-                ),
-                body: Builder(
-                  builder: (context) => Container(
-                    padding: EdgeInsets.all(15.0),
-                    child: Column(
-                      children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                                  child: Text(user.displayName),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                                  child: Text(user.email),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              width: 80,
-                              height: 80,
-                              child: CircleAvatar(
-                                backgroundImage: NetworkImage(user.photoUrl),
+              ),
+            ],
+            if (!_loading && !loggedIn) ...[
+              Center(
+                child: Text("Você não está autenticado."),
+              ),
+            ],
+            if (!_loading && loggedIn) ...[
+              Builder(
+                builder: (context) => Container(
+                  padding: EdgeInsets.all(15.0),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10.0),
+                                child: Text(_user.displayName),
                               ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10.0),
+                                child: Text(_user.email),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 80,
+                            height: 80,
+                            child: CircleAvatar(
+                              backgroundImage: NetworkImage(_user.photoUrl),
                             ),
-                          ],
+                          ),
+                        ],
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(top: 15),
+                        width: MediaQuery.of(context).size.width,
+                        child: RaisedButton(
+                          onPressed: () async {
+                            if (isPhoneVerified) {
+                              Scaffold.of(context).showSnackBar(SnackBar(
+                                  content: Text("Número verificado: " +
+                                      _user.phoneNumber)));
+                            } else {
+                              await Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) => FirstStep()));
+
+                              getUser();
+                            }
+                          },
+                          child: Row(
+                            mainAxisAlignment: isPhoneVerified
+                                ? MainAxisAlignment.spaceBetween
+                                : MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text(isPhoneVerified
+                                  ? "Número de telefone verificado"
+                                  : "Verificar número de telefone"),
+                              if (isPhoneVerified) ...[
+                                Icon(Icons.check_circle, color: Colors.green),
+                              ]
+                            ],
+                          ),
+                          padding: EdgeInsets.all(15.0),
                         ),
-                        Container(
+                      ),
+                      Container(
                           margin: EdgeInsets.only(top: 15),
                           width: MediaQuery.of(context).size.width,
                           child: RaisedButton(
                             onPressed: () async {
-                              if (isPhoneVerified) {
-                                Scaffold.of(context).showSnackBar(SnackBar(
-                                    content: Text("Número verificado: " +
-                                        user.phoneNumber)));
-                              } else {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => FirstStep()));
-                              }
+                              await _authService.googleSignOut();
+                              Navigator.of(context).pop();
                             },
-                            child: Row(
-                              mainAxisAlignment: isPhoneVerified
-                                  ? MainAxisAlignment.spaceBetween
-                                  : MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text(isPhoneVerified
-                                    ? "Número de telefone verificado"
-                                    : "Verificar número de telefone"),
-                                if (isPhoneVerified) ...[
-                                  Icon(Icons.check_circle, color: Colors.green),
-                                ]
-                              ],
-                            ),
+                            child: Text("Sair"),
                             padding: EdgeInsets.all(15.0),
-                          ),
-                        ),
-                        Container(
-                            margin: EdgeInsets.only(top: 15),
-                            width: MediaQuery.of(context).size.width,
-                            child: RaisedButton(
-                              onPressed: () async {
-                                await _authService.googleSignOut();
-                                Navigator.of(context).pop();
-                              },
-                              child: Text("Sair"),
-                              padding: EdgeInsets.all(15.0),
-                            ))
-                      ],
-                    ),
+                          ))
+                    ],
                   ),
-                ));
-          });
+                ),
+              ),
+            ],
+          ],
+        ));
   }
 }
 
@@ -136,12 +160,15 @@ class _FirstStepState extends State<FirstStep> {
       bool hasSent = await _authService.verifyPhone(_phoneField.text);
 
       if (hasSent) {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => SecondStep()));
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => SecondStep()));
       } else {
-        _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Erro ao verificar número de telefone")));
+        _scaffoldKey.currentState.showSnackBar(
+            SnackBar(content: Text("Erro ao verificar número de telefone")));
       }
     } else {
-      _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Insira um número de telefone válido")));
+      _scaffoldKey.currentState.showSnackBar(
+          SnackBar(content: Text("Insira um número de telefone válido")));
     }
   }
 
@@ -153,19 +180,19 @@ class _FirstStepState extends State<FirstStep> {
         title: Text("Verificar telefone"),
       ),
       body: Padding(
-            padding: EdgeInsets.all(15.0),
-            child: TextField(
-              controller: _phoneField,
-              autocorrect: false,
-              autofocus: true,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                labelText: "Número do telefone com DDD",
-              ),
-              onSubmitted: (value) {
-                _sendSMS();
-              },
-            ),
+        padding: EdgeInsets.all(15.0),
+        child: TextField(
+          controller: _phoneField,
+          autocorrect: false,
+          autofocus: true,
+          keyboardType: TextInputType.phone,
+          decoration: InputDecoration(
+            labelText: "Número do telefone com DDD",
+          ),
+          onSubmitted: (value) {
+            _sendSMS();
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _sendSMS,
@@ -197,10 +224,12 @@ class _SecondStepState extends State<SecondStep> {
           return route.settings.name == '/profile';
         });
       } else {
-        _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Erro ao confirmar número de telefone")));
+        _scaffoldKey.currentState.showSnackBar(
+            SnackBar(content: Text("Erro ao confirmar número de telefone")));
       }
     } else {
-      _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Insira o código que você recebeu via SMS")));
+      _scaffoldKey.currentState.showSnackBar(
+          SnackBar(content: Text("Insira o código que você recebeu via SMS")));
     }
   }
 
