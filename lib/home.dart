@@ -252,10 +252,10 @@ class _HomePageState extends State<HomePage> {
                   mapType: MapType.normal,
                   markers: markers,
                   polylines: polylines,
-                  // rotateGesturesEnabled: false,
-                  // scrollGesturesEnabled: false,
+                  rotateGesturesEnabled: false,
+                  scrollGesturesEnabled: false,
                   // zoomGesturesEnabled: false,
-                  // tiltGesturesEnabled: false,
+                  tiltGesturesEnabled: false,
                 ),
                 if (_travel != null) ...[
                   SafeArea(
@@ -556,8 +556,8 @@ class _HomePageState extends State<HomePage> {
                       if (!loggedIn) ...[
                         IconButton(
                           icon: Icon(Icons.account_circle),
-                          onPressed: () {
-                            _authService.googleSignIn();
+                          onPressed: () async {
+                            await _authService.googleSignIn();
                           },
                         ),
                       ],

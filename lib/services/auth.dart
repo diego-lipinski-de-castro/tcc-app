@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
@@ -98,13 +99,14 @@ class AuthService {
 
       return true;
     } catch (error) {
+
       print(error);
       return false;
     }
   }
 
   googleSignOut() async {
-//    await _googleSignIn.signOut();
+    await _googleSignIn.signOut();
     await _firebaseAuth.signOut();
   }
 }
