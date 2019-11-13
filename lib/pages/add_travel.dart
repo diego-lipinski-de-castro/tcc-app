@@ -175,7 +175,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
                 GestureDetector(
                   onTap: () async {
                     _start = await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => SearchPlacesPage()));
+                        builder: (context) => SearchPlacesPage(), settings: RouteSettings(name: '/search-places-start')));
 
                     _startingPlaceField.text = _start?.description;
                   },
@@ -208,7 +208,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
                   onTap: () async {
                     _destination = await Navigator.of(context).push(
                         MaterialPageRoute(
-                            builder: (context) => SearchPlacesPage()));
+                            builder: (context) => SearchPlacesPage(), settings: RouteSettings(name: '/search-places-destination')));
                     _destinationPlaceField.text = _destination.description;
                   },
                   child: Container(

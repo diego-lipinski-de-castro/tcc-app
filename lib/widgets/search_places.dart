@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_webservice/places.dart';
 
@@ -19,6 +20,8 @@ class _SearchPlacesPageState extends State<SearchPlacesPage> {
 
   List<Prediction> _results = [];
 
+  final FirebaseAnalytics _analytics = FirebaseAnalytics();
+
   Future<List<Prediction>> _search(text) async {
     PlacesAutocompleteResponse result =
         await _placesServices.autocomplete(text, language: "pt-br");
@@ -28,6 +31,8 @@ class _SearchPlacesPageState extends State<SearchPlacesPage> {
 
   void _handleSearch(String text) {
     _search(text).then((places) {
+      _analytics.logViewSearchResults(searchTerm: text);
+      
       setState(() {
         _results = places;
       });

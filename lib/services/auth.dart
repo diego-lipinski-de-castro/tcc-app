@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -10,6 +11,8 @@ class AuthService {
 
   static FirebaseUser user;
   static Stream<FirebaseUser> userStream;
+
+  final FirebaseAnalytics _analytics = FirebaseAnalytics();
 
   factory AuthService.singleton() {
     _firebaseAuth.setLanguageCode('pt-br');
@@ -40,6 +43,8 @@ class AuthService {
           verificationId: _verificationId, smsCode: smsCode);
 
       await user.updatePhoneNumberCredential(phoneAuthCredential);
+
+      await _analytics.logLogin(loginMethod: 'phone-verified');
 
       _verificationId = null;
 
@@ -96,6 +101,8 @@ class AuthService {
 
       await _firebaseAuth.signInWithCredential(authCredential);
 
+      await _analytics.logLogin(loginMethod: 'google-signin');
+
       return true;
     } catch (error) {
 
@@ -105,6 +112,8 @@ class AuthService {
   }
 
   googleSignOut() async {
+    await _analytics.logLogin(loginMethod: 'google-signout');
+
     await _googleSignIn.signOut();
     await _firebaseAuth.signOut();
   }

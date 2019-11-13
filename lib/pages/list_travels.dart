@@ -222,8 +222,7 @@ class _ListTravelPageState extends State<ListTravelPage> {
           child: Icon(Icons.add),
           onPressed: () {
             if (isPhoneVerified) {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => AddTravelPage()));
+              Navigator.pushNamed(context, '/add-travel');
             } else {
               showDialog(
                   context: context,

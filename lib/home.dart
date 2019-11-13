@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -15,7 +16,6 @@ import 'package:google_maps_webservice/directions.dart' as Directions;
 import 'utils/maps.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'models/map_data.dart';
-import 'pages/list_travels.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -55,6 +55,8 @@ class _HomePageState extends State<HomePage> {
   TextEditingController _contactText = TextEditingController();
 
   bool _loadingSheet = false;
+
+  final FirebaseAnalytics _analytics = FirebaseAnalytics();
 
   @override
   void initState() {
@@ -134,6 +136,9 @@ class _HomePageState extends State<HomePage> {
       _travel = travel;
     });
 
+    await _analytics.logViewItem(
+        itemId: travel.id, itemName: travel.titleKey, itemCategory: 'travel');
+
     _mapsController.animateCamera(CameraUpdate.zoomOut());
 
     _mapsController.animateCamera(CameraUpdate.newLatLngBounds(
@@ -208,7 +213,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  _openWhats(String phoneNumber, String title) async {
+  _openWhats(String phoneNumber, String title, String travelId) async {
     final text =
         Uri.encodeFull('Olá, ainda possui vagas para a excursão $title?');
 
@@ -219,12 +224,20 @@ class _HomePageState extends State<HomePage> {
       bool canWhats = await canLaunch(whatsUrl);
 
       if (canWhats) {
+        _analytics.logShare(
+            contentType: 'travel', itemId: travelId, method: 'whatsapp');
+
         await launch(whatsUrl);
       } else {
         bool canPhone = await canLaunch(url);
 
         if (canPhone) {
+          _analytics.logShare(
+              contentType: 'travel', itemId: travelId, method: 'phone');
+
           await launch(url);
+        } else {
+          throw Error();
         }
       }
     } catch (error) {
@@ -707,7 +720,9 @@ class _HomePageState extends State<HomePage> {
                     onPressed: () async {
                       Travel travel = await Navigator.of(context).push(
                           MaterialPageRoute(
-                              builder: (context) => SearchTravels()));
+                              builder: (context) => SearchTravels(),
+                              settings:
+                                  RouteSettings(name: '/search-travels')));
 
                       if (travel != null) {
                         _loadUi(travel);
@@ -725,7 +740,8 @@ class _HomePageState extends State<HomePage> {
                           label: const Text('Quero'),
                           icon: const Icon(Icons.send),
                           onPressed: () {
-                            _openWhats(_travel.phone, _travel.title);
+                            _openWhats(
+                                _travel.phone, _travel.title, _travel.id);
                           },
                         ),
                         FloatingActionButton.extended(
@@ -788,8 +804,7 @@ class _HomePageState extends State<HomePage> {
                         IconButton(
                           icon: Icon(Icons.menu),
                           onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => ListTravelPage()));
+                            Navigator.pushNamed(context, '/my-travels');
                           },
                         ),
                       ]

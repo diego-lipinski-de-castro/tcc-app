@@ -100,7 +100,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             } else {
                               await Navigator.of(context).push(
                                   MaterialPageRoute(
-                                      builder: (context) => FirstStep()));
+                                      builder: (context) => FirstStep(), settings: RouteSettings(name: '/verify-number-step-1')));
 
                               getUser();
                             }
@@ -161,7 +161,7 @@ class _FirstStepState extends State<FirstStep> {
 
       if (hasSent) {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => SecondStep()));
+            .push(MaterialPageRoute(builder: (context) => SecondStep(), settings: RouteSettings(name: '/verify-number-step-2')));
       } else {
         _scaffoldKey.currentState.showSnackBar(
             SnackBar(content: Text("Erro ao verificar número de telefone")));

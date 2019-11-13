@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import '../services/travel.dart';
 import '../models/Travel.dart';
@@ -20,6 +20,8 @@ class _SearchTravelsState extends State<SearchTravels> {
 
   List<Travel> _results = [];
 
+  final FirebaseAnalytics _analytics = FirebaseAnalytics();
+
   Future<List<Travel>> _search(text) async {
     try {
       List travels = await _travelService.search(text);
@@ -32,6 +34,8 @@ class _SearchTravelsState extends State<SearchTravels> {
 
   void _handleSearch(String text) {
     _search(text).then((travels) {
+      _analytics.logViewSearchResults(searchTerm: text);
+
       setState(() {
         _results = travels;
         _loading = false;
@@ -41,6 +45,9 @@ class _SearchTravelsState extends State<SearchTravels> {
 
   @override
   Widget build(BuildContext context) {
+    
+    _analytics.logSelectContent();
+
     ThemeData theme = ThemeData(
       primaryColor: Colors.white,
       primaryIconTheme:
