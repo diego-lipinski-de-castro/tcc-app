@@ -72,3 +72,5 @@
 android/app/google-services.json
 android/key.jks
 android/key.properties
+
+functions/node_modules

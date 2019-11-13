@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:tcc/services/auth.dart';
+import 'package:tcc/services/contact.dart';
 import 'package:tcc/services/feedback.dart';
 import 'package:tcc/services/permission.dart';
 import 'package:geolocator/geolocator.dart';
@@ -411,7 +412,7 @@ class _HomePageState extends State<HomePage> {
                                                                                 _loadingSheet = true;
                                                                               });
 
-                                                                              bool success = await FeedbackService.send(_contactText.text);
+                                                                              bool success = await ContactService.send(_contactText.text);
 
                                                                               setState(() {
                                                                                 _loadingSheet = false;
