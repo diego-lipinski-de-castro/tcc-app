@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:tcc/services/auth.dart';
+import 'package:tcc/services/feedback.dart';
 import 'package:tcc/services/permission.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:tcc/services/map_data.dart';
@@ -11,7 +12,6 @@ import 'widgets/search_travels.dart';
 import 'models/Travel.dart';
 import 'package:google_maps_webservice/directions.dart' as Directions;
 import 'utils/maps.dart';
-import 'pages/profile.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'models/map_data.dart';
 import 'pages/list_travels.dart';
@@ -49,6 +49,11 @@ class _HomePageState extends State<HomePage> {
   String _duration;
 
   bool _openDetail = false;
+
+  TextEditingController _feedbackText = TextEditingController();
+  TextEditingController _contactText = TextEditingController();
+
+  bool _loadingSheet = false;
 
   @override
   void initState() {
@@ -240,255 +245,455 @@ class _HomePageState extends State<HomePage> {
             key: _scaffoldKey,
             resizeToAvoidBottomInset: false,
             backgroundColor: Colors.white,
-            body: Stack(
-              children: <Widget>[
-                GoogleMap(
-                  onMapCreated: (controller) {
-                    _init(controller);
-                  },
-                  initialCameraPosition: _initialPosition,
-                  myLocationEnabled: _hasPermission,
-                  myLocationButtonEnabled: false,
-                  mapType: MapType.normal,
-                  markers: markers,
-                  polylines: polylines,
-                  rotateGesturesEnabled: false,
-                  scrollGesturesEnabled: false,
-                  // zoomGesturesEnabled: false,
-                  tiltGesturesEnabled: false,
-                ),
-                if (_travel != null) ...[
-                  SafeArea(
-                    child: Container(
-                        margin: EdgeInsets.all(15.0),
-                        padding: EdgeInsets.all(15.0),
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5.0)),
-                        child: Text(
-                          _travel.title,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 18,
-                              letterSpacing: 0.5),
-                        )),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.only(
-                            left: 15.0, right: 15.0, bottom: 40.0),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5.0)),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+            body: Builder(
+              builder: (context) {
+                return Stack(
+                  children: <Widget>[
+                    GoogleMap(
+                      onMapCreated: (controller) {
+                        _init(controller);
+                      },
+                      initialCameraPosition: _initialPosition,
+                      myLocationEnabled: _hasPermission,
+                      myLocationButtonEnabled: false,
+                      mapType: MapType.normal,
+                      markers: markers,
+                      polylines: polylines,
+                      rotateGesturesEnabled: false,
+                      scrollGesturesEnabled: false,
+                      // zoomGesturesEnabled: false,
+                      tiltGesturesEnabled: false,
+                    ),
+                    SafeArea(
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: Stack(
                           children: <Widget>[
-                            Container(
-                              // duration: Duration(milliseconds: 300),
-                              height: _openDetail
-                                  ? MediaQuery.of(context).size.height / 1.6
-                                  : null,
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 15),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Container(
-                                            width: (MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                    2) -
-                                                15,
-                                            padding: EdgeInsets.all(15.0),
-                                            child: Column(
-                                              children: <Widget>[
-                                                Text(
-                                                  "Local de saída",
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                                Text(
-                                                  _travel.start,
-                                                  overflow: _openDetail
-                                                      ? TextOverflow.visible
-                                                      : TextOverflow.ellipsis,
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Container(
-                                            width: (MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                    2) -
-                                                15,
-                                            padding: EdgeInsets.all(15.0),
-                                            child: Column(
-                                              children: <Widget>[
-                                                Text(
-                                                  "Local de chegada",
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                                Text(
-                                                  _travel.destiny,
-                                                  overflow: _openDetail
-                                                      ? TextOverflow.visible
-                                                      : TextOverflow.ellipsis,
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                            Positioned(
+                              right: 15,
+                              top: 15,
+                              child: SizedBox(
+                                width: 40,
+                                height: 40,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius:
+                                          BorderRadius.circular(50.0)),
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: Icon(
+                                      Icons.error_outline,
+                                      color: Colors.deepPurple,
+                                      size: 30,
                                     ),
-                                    if (_openDetail) ...[
-                                      Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 15),
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Container(
-                                              width: (MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      2) -
-                                                  15,
-                                              padding: EdgeInsets.all(15.0),
-                                              child: Column(
+                                    onPressed: () {
+                                      showModalBottomSheet(
+                                          context: context,
+                                          builder: (modalSheetContext) {
+                                            return Container(
+                                              child: Wrap(
                                                 children: <Widget>[
-                                                  Text(
-                                                    "Data de saída",
-                                                    textAlign: TextAlign.center,
+                                                  ListTile(
+                                                    title:
+                                                        Text('Enviar feedback'),
+                                                    onTap: () {
+                                                      Navigator.pop(
+                                                          modalSheetContext);
+
+                                                      showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (dialogContext) {
+                                                            return AlertDialog(
+                                                              title: Text(
+                                                                  'Enviar feedback'),
+                                                              content:
+                                                                  TextField(
+                                                                controller:
+                                                                    _feedbackText,
+                                                                autofocus: true,
+                                                                maxLines: 5,
+                                                                decoration:
+                                                                    InputDecoration(
+                                                                        border:
+                                                                            OutlineInputBorder()),
+                                                              ),
+                                                              actions: <Widget>[
+                                                                FlatButton(
+                                                                  child: Text(
+                                                                      'Voltar'),
+                                                                  onPressed:
+                                                                      () {
+                                                                    Navigator.pop(
+                                                                        dialogContext);
+                                                                    _feedbackText
+                                                                        .text = '';
+                                                                  },
+                                                                ),
+                                                                FlatButton(
+                                                                  child: Text(
+                                                                      'Enviar'),
+                                                                  onPressed:
+                                                                      _loadingSheet
+                                                                          ? null
+                                                                          : () async {
+                                                                              setState(() {
+                                                                                _loadingSheet = true;
+                                                                              });
+
+                                                                              bool success = await FeedbackService.send(_feedbackText.text);
+
+                                                                              setState(() {
+                                                                                _loadingSheet = false;
+                                                                              });
+
+                                                                              Navigator.pop(dialogContext);
+
+                                                                              if (success) {
+                                                                                _feedbackText.text = '';
+                                                                              }
+
+                                                                              Scaffold.of(context).showSnackBar(SnackBar(content: Text(success ? 'Recebmos seu feedback! Aguarde futuras atualizações' : 'Falha ao enviar feedback :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
+                                                                            },
+                                                                )
+                                                              ],
+                                                            );
+                                                          });
+                                                    },
                                                   ),
-                                                  Text(
-                                                    _travel.startDateTime,
-                                                    textAlign: TextAlign.center,
+                                                  ListTile(
+                                                    title: Text(
+                                                        'Entrar em contato com o desenvolvedor'),
+                                                    onTap: () {
+                                                      Navigator.pop(
+                                                          modalSheetContext);
+
+                                                      showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (dialogContext) {
+                                                            return AlertDialog(
+                                                              title: Text(
+                                                                  'Entrar em contato'),
+                                                              content:
+                                                                  TextField(
+                                                                controller:
+                                                                    _contactText,
+                                                                autofocus: true,
+                                                                maxLines: 5,
+                                                                decoration: InputDecoration(
+                                                                    hintText:
+                                                                        'Dê uma descrição breve do motivo do contato e iremos retornar para mais detalhes.',
+                                                                    border:
+                                                                        OutlineInputBorder()),
+                                                              ),
+                                                              actions: <Widget>[
+                                                                FlatButton(
+                                                                  child: Text(
+                                                                      'Voltar'),
+                                                                  onPressed:
+                                                                      () {
+                                                                    Navigator.pop(
+                                                                        dialogContext);
+                                                                    _contactText
+                                                                        .text = '';
+                                                                  },
+                                                                ),
+                                                                FlatButton(
+                                                                  child: Text(
+                                                                      'Enviar'),
+                                                                  onPressed:
+                                                                      _loadingSheet
+                                                                          ? null
+                                                                          : () async {
+                                                                              setState(() {
+                                                                                _loadingSheet = true;
+                                                                              });
+
+                                                                              bool success = await FeedbackService.send(_contactText.text);
+
+                                                                              setState(() {
+                                                                                _loadingSheet = false;
+                                                                              });
+
+                                                                              Navigator.pop(dialogContext);
+
+                                                                              if (success) {
+                                                                                _contactText.text = '';
+                                                                              }
+
+                                                                              _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(success ? 'Recebemos sua mensagem. Logo entraremos em contato :)' : 'Falha ao enviar mensagem :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
+                                                                            },
+                                                                )
+                                                              ],
+                                                            );
+                                                          });
+                                                    },
                                                   ),
                                                 ],
                                               ),
-                                            ),
-                                            Container(
-                                              width: (MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      2) -
-                                                  15,
-                                              padding: EdgeInsets.all(15.0),
-                                              child: Column(
-                                                children: <Widget>[
-                                                  Text(
-                                                    "Data de volta",
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                  Text(
-                                                    _travel.backDateTime,
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 15),
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Container(
-                                              width: (MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      2) -
-                                                  15,
-                                              padding: EdgeInsets.all(15.0),
-                                              child: Column(
-                                                children: <Widget>[
-                                                  Text(
-                                                    "Total de vagas",
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                  Text(
-                                                    _travel.vagas,
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Container(
-                                              width: (MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      2) -
-                                                  15,
-                                              padding: EdgeInsets.all(15.0),
-                                              child: Column(
-                                                children: <Widget>[
-                                                  Text(
-                                                    "Preço",
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                  Text(
-                                                    "R\$" + _travel.price,
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        padding: EdgeInsets.all(15.0),
-                                        child: Text(_travel.description,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 10,
-                                            textAlign: TextAlign.center),
-                                      )
-                                    ],
-                                  ],
+                                            );
+                                          });
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
-                            Container(
-                                width: MediaQuery.of(context).size.width,
-                                child: FlatButton(
-                                  materialTapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                  padding: EdgeInsets.symmetric(vertical: 15.0),
-                                  onPressed: () {
-                                    setState(() {
-                                      _openDetail = !_openDetail;
-                                    });
-                                  },
-                                  child: Text(
-                                    "Mais informações",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w700),
-                                  ),
-                                )),
+                            )
                           ],
-                        )),
-                  ),
-                ],
-              ],
+                        ),
+                      ),
+                    ),
+                    if (_travel != null) ...[
+                      SafeArea(
+                        child: Container(
+                            margin: EdgeInsets.all(15.0),
+                            padding: EdgeInsets.all(15.0),
+                            width: MediaQuery.of(context).size.width,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(5.0)),
+                            child: Text(
+                              _travel.title,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 18,
+                                  letterSpacing: 0.5),
+                            )),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            margin: EdgeInsets.only(
+                                left: 15.0, right: 15.0, bottom: 40.0),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(5.0)),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Container(
+                                  // duration: Duration(milliseconds: 300),
+                                  height: _openDetail
+                                      ? MediaQuery.of(context).size.height / 1.6
+                                      : null,
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 15),
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Container(
+                                                width: (MediaQuery.of(context)
+                                                            .size
+                                                            .width /
+                                                        2) -
+                                                    15,
+                                                padding: EdgeInsets.all(15.0),
+                                                child: Column(
+                                                  children: <Widget>[
+                                                    Text(
+                                                      "Local de saída",
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                    Text(
+                                                      _travel.start,
+                                                      overflow: _openDetail
+                                                          ? TextOverflow.visible
+                                                          : TextOverflow
+                                                              .ellipsis,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Container(
+                                                width: (MediaQuery.of(context)
+                                                            .size
+                                                            .width /
+                                                        2) -
+                                                    15,
+                                                padding: EdgeInsets.all(15.0),
+                                                child: Column(
+                                                  children: <Widget>[
+                                                    Text(
+                                                      "Local de chegada",
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                    Text(
+                                                      _travel.destiny,
+                                                      overflow: _openDetail
+                                                          ? TextOverflow.visible
+                                                          : TextOverflow
+                                                              .ellipsis,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        if (_openDetail) ...[
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 15),
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Container(
+                                                  width: (MediaQuery.of(context)
+                                                              .size
+                                                              .width /
+                                                          2) -
+                                                      15,
+                                                  padding: EdgeInsets.all(15.0),
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      Text(
+                                                        "Data de saída",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                      Text(
+                                                        _travel.startDateTime,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Container(
+                                                  width: (MediaQuery.of(context)
+                                                              .size
+                                                              .width /
+                                                          2) -
+                                                      15,
+                                                  padding: EdgeInsets.all(15.0),
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      Text(
+                                                        "Data de volta",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                      Text(
+                                                        _travel.backDateTime,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 15),
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Container(
+                                                  width: (MediaQuery.of(context)
+                                                              .size
+                                                              .width /
+                                                          2) -
+                                                      15,
+                                                  padding: EdgeInsets.all(15.0),
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      Text(
+                                                        "Total de vagas",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                      Text(
+                                                        _travel.vagas,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Container(
+                                                  width: (MediaQuery.of(context)
+                                                              .size
+                                                              .width /
+                                                          2) -
+                                                      15,
+                                                  padding: EdgeInsets.all(15.0),
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      Text(
+                                                        "Preço",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                      Text(
+                                                        "R\$" + _travel.price,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Container(
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            padding: EdgeInsets.all(15.0),
+                                            child: Text(_travel.description,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 10,
+                                                textAlign: TextAlign.center),
+                                          )
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    child: FlatButton(
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 15.0),
+                                      onPressed: () {
+                                        setState(() {
+                                          _openDetail = !_openDetail;
+                                        });
+                                      },
+                                      child: Text(
+                                        "Mais informações",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                    )),
+                              ],
+                            )),
+                      ),
+                    ],
+                  ],
+                );
+              },
             ),
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.centerDocked,
