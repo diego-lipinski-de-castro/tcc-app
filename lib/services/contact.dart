@@ -16,11 +16,14 @@ class ContactService {
 
     try {
       await collection.document().setData({
-        'text': text,
         'name': user?.displayName,
         'email': user?.email,
-        'createdAt': DateTime.now(),
-        'createdBy': user?.uid,
+        'from': user?.email,  
+        'to': ['diegocastroh20@gmail.com'],
+        'message': {
+          'subject': 'Excursões - Contato com o desenvolvedor',
+          'text': text
+        }
       });
 
       return true;

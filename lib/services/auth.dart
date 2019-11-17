@@ -15,7 +15,7 @@ class AuthService {
   final FirebaseAnalytics _analytics = FirebaseAnalytics();
 
   factory AuthService.singleton() {
-    _firebaseAuth.setLanguageCode('pt-br');
+    _firebaseAuth.setLanguageCode('pt-BR');
 
     userStream = _firebaseAuth.onAuthStateChanged;
 
@@ -112,9 +112,10 @@ class AuthService {
   }
 
   googleSignOut() async {
-    await _analytics.logLogin(loginMethod: 'google-signout');
+    // await _analytics.logLogin(loginMethod: 'google-signout');
+    await _analytics.logLogin(loginMethod: 'firebase-signout');
 
-    await _googleSignIn.signOut();
+    // await _googleSignIn.signOut();
     await _firebaseAuth.signOut();
   }
 }
