@@ -45,8 +45,6 @@ class _SearchTravelsState extends State<SearchTravels> {
 
   @override
   Widget build(BuildContext context) {
-    
-    _analytics.logSelectContent();
 
     ThemeData theme = ThemeData(
       primaryColor: Colors.white,
@@ -107,6 +105,7 @@ class _SearchTravelsState extends State<SearchTravels> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
+                      _analytics.logSelectContent(contentType: 'travel', itemId: _results.elementAt(index).id);
                       Navigator.pop(context, _results.elementAt(index));
                     },
                     child: Container(
