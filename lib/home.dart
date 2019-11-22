@@ -368,7 +368,7 @@ class _HomePageState extends State<HomePage> {
                                                                                 _feedbackText.text = '';
                                                                               }
 
-                                                                              Scaffold.of(context).showSnackBar(SnackBar(content: Text(success ? 'Recebmos seu feedback! Aguarde futuras atualizações' : 'Falha ao enviar feedback :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
+                                                                              Scaffold.of(context).showSnackBar(SnackBar(content: Text(success ? 'Recebemos seu feedback! Aguarde futuras atualizações' : 'Falha ao enviar feedback :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
                                                                             },
                                                                 )
                                                               ],
