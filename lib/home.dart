@@ -1,21 +1,22 @@
 import 'dart:async';
-import 'package:firebase_analytics/firebase_analytics.dart';
+
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_webservice/directions.dart' as Directions;
 import 'package:tcc/services/auth.dart';
 import 'package:tcc/services/contact.dart';
 import 'package:tcc/services/feedback.dart';
 import 'package:tcc/services/permission.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:tcc/services/map_data.dart';
 import 'package:tcc/services/travel.dart';
 import 'widgets/search_travels.dart';
-import 'models/Travel.dart';
-import 'package:google_maps_webservice/directions.dart' as Directions;
 import 'utils/maps.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'models/map_data.dart';
+import 'models/travel.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);

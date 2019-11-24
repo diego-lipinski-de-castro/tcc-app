@@ -3,7 +3,7 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import '../widgets/search_places.dart';
 import '../services/travel.dart';
-import '../models/Travel.dart';
+import '../models/travel.dart';
 
 class AddTravelPage extends StatefulWidget {
   @override

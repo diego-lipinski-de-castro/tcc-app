@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import '../services/travel.dart';
-import '../models/Travel.dart';
+import '../models/travel.dart';
 
 class SearchTravels extends StatefulWidget {
   SearchTravels({Key key}) : super(key: key);
