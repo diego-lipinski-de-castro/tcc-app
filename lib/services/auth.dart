@@ -111,7 +111,7 @@ class AuthService {
     }
   }
 
-  googleSignOut() async {
+  Future<void> googleSignOut() async {
     // await _analytics.logLogin(loginMethod: 'google-signout');
     await _analytics.logLogin(loginMethod: 'firebase-signout');
 

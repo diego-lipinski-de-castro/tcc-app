@@ -274,10 +274,10 @@ class _HomePageState extends State<HomePage> {
                       mapType: MapType.normal,
                       markers: markers,
                       polylines: polylines,
-                      rotateGesturesEnabled: false,
-                      scrollGesturesEnabled: false,
-                      // zoomGesturesEnabled: false,
-                      tiltGesturesEnabled: false,
+                      rotateGesturesEnabled: true,
+                      scrollGesturesEnabled: true,
+                      zoomGesturesEnabled: true,
+                      tiltGesturesEnabled: true,
                     ),
                     SafeArea(
                       child: Align(

@@ -1,8 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tcc/services/auth.dart';
-import 'add_travel.dart';
-import '../models/Travel.dart';
+import '../models/travel.dart';
 import '../services/Travel.dart';
 
 class ListTravelPage extends StatefulWidget {
