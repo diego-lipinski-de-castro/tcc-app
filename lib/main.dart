@@ -5,11 +5,13 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:tcc/pages/add_travel.dart';
 import 'package:tcc/pages/list_travels.dart';
 import 'package:tcc/pages/profile.dart';
-import 'home.dart';
+import 'pages/home.dart';
 
 void main() {
   // Crashlytics.instance.enableInDevMode = true;
+
   FlutterError.onError = Crashlytics.instance.recordFlutterError;
+  
   // Crashlytics.instance.log('');
   // Crashlytics.instance.crash();
 

@@ -13,10 +13,10 @@ import 'package:tcc/services/feedback.dart';
 import 'package:tcc/services/permission.dart';
 import 'package:tcc/services/map_data.dart';
 import 'package:tcc/services/travel.dart';
-import 'widgets/search_travels.dart';
-import 'utils/maps.dart';
-import 'models/map_data.dart';
-import 'models/travel.dart';
+import '../widgets/search_travels.dart';
+import '../utils/maps.dart';
+import '../models/map_data.dart';
+import '../models/travel.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -38,8 +38,7 @@ class _HomePageState extends State<HomePage> {
   CameraPosition _initialPosition =
       CameraPosition(target: LatLng(-14.235004, -51.92528), zoom: 4);
 
-  Directions.GoogleMapsDirections _directions = Directions.GoogleMapsDirections(
-      apiKey: "AIzaSyCHOLoxY8hwQzx_dyvDkihq9SpuQeiCGJs");
+  Directions.GoogleMapsDirections _directions = Directions.GoogleMapsDirections(apiKey: "AIzaSyCHOLoxY8hwQzx_dyvDkihq9SpuQeiCGJs");
 
   Set<Marker> markers = <Marker>{};
   Set<Polyline> polylines = <Polyline>{};
@@ -99,8 +98,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   _updateUi(
-      {Travel travel,
-      distance,
+      {distance,
       duration,
       points,
       startLat,
@@ -133,13 +131,6 @@ class _HomePageState extends State<HomePage> {
         // infoWindow: InfoWindow(title: _travel.destiny, snippet: "Ponto de destino"),
         position: LatLng(endLat, endLng)));
 
-    setState(() {
-      _travel = travel;
-    });
-
-    await _analytics.logViewItem(
-        itemId: travel.id, itemName: travel.titleKey, itemCategory: 'travel');
-
     _mapsController.animateCamera(CameraUpdate.zoomOut());
 
     _mapsController.animateCamera(CameraUpdate.newLatLngBounds(
@@ -151,11 +142,16 @@ class _HomePageState extends State<HomePage> {
 
   _loadUi(Travel travel) async {
     try {
+      setState(() {
+        _travel = travel;
+      });
+
+      await _analytics.logViewItem(itemId: travel.id, itemName: travel.titleKey, itemCategory: 'travel');
+      
       if (travel.hasMapsDoc) {
         MapData result = await _mapDataService.get(travel.id);
 
         _updateUi(
-            travel: travel,
             distance: result.distance,
             duration: result.duration,
             points: result.points,
@@ -172,41 +168,44 @@ class _HomePageState extends State<HomePage> {
             .directionsWithAddress(travel.start, travel.destiny,
                 language: "pt-br");
 
-        _updateUi(
-          travel: travel,
-          distance: result.routes.first.legs.first.distance.text,
-          duration: result.routes.first.legs.first.duration.text,
-          points: result.routes.first.overviewPolyline.points,
-          startLat: result.routes.first.legs.first.startLocation.lat,
-          startLng: result.routes.first.legs.first.startLocation.lng,
-          endLat: result.routes.first.legs.first.endLocation.lat,
-          endLng: result.routes.first.legs.first.endLocation.lng,
-          southwestLat: result.routes.first.bounds.southwest.lat,
-          southwestLng: result.routes.first.bounds.southwest.lng,
-          northeastLat: result.routes.first.bounds.northeast.lat,
-          northeastLng: result.routes.first.bounds.northeast.lng,
-        );
+        if(result.isOkay) {
+          _updateUi(
+            distance: result.routes.first.legs.first.distance.text,
+            duration: result.routes.first.legs.first.duration.text,
+            points: result.routes.first.overviewPolyline.points,
+            startLat: result.routes.first.legs.first.startLocation.lat,
+            startLng: result.routes.first.legs.first.startLocation.lng,
+            endLat: result.routes.first.legs.first.endLocation.lat,
+            endLng: result.routes.first.legs.first.endLocation.lng,
+            southwestLat: result.routes.first.bounds.southwest.lat,
+            southwestLng: result.routes.first.bounds.southwest.lng,
+            northeastLat: result.routes.first.bounds.northeast.lat,
+            northeastLng: result.routes.first.bounds.northeast.lng,
+          );
 
-        Timer(Duration(seconds: 1), () {
-          _mapDataService.add(
-              travel.id,
-              MapData(
-                travelId: travel.id,
-                distance: result.routes.first.legs.first.distance.text,
-                duration: result.routes.first.legs.first.duration.text,
-                points: result.routes.first.overviewPolyline.points,
-                startLat: result.routes.first.legs.first.startLocation.lat,
-                startLng: result.routes.first.legs.first.startLocation.lng,
-                endLat: result.routes.first.legs.first.endLocation.lat,
-                endLng: result.routes.first.legs.first.endLocation.lng,
-                southwestLat: result.routes.first.bounds.southwest.lat,
-                southwestLng: result.routes.first.bounds.southwest.lng,
-                northeastLat: result.routes.first.bounds.northeast.lat,
-                northeastLng: result.routes.first.bounds.northeast.lng,
-              ));
+          Timer(Duration(seconds: 1), () {
+            _mapDataService.add(
+                travel.id,
+                MapData(
+                  travelId: travel.id,
+                  distance: result.routes.first.legs.first.distance.text,
+                  duration: result.routes.first.legs.first.duration.text,
+                  points: result.routes.first.overviewPolyline.points,
+                  startLat: result.routes.first.legs.first.startLocation.lat,
+                  startLng: result.routes.first.legs.first.startLocation.lng,
+                  endLat: result.routes.first.legs.first.endLocation.lat,
+                  endLng: result.routes.first.legs.first.endLocation.lng,
+                  southwestLat: result.routes.first.bounds.southwest.lat,
+                  southwestLng: result.routes.first.bounds.southwest.lng,
+                  northeastLat: result.routes.first.bounds.northeast.lat,
+                  northeastLng: result.routes.first.bounds.northeast.lng,
+                ));
 
-          _travelService.update(travel.id);
-        });
+            _travelService.update(travel.id);
+          });
+        } else {
+          Scaffold.of(context).showSnackBar(SnackBar(content: Text('Não foi possível executar ação :(')));
+        }
       }
     } catch (error) {
       print("error");
