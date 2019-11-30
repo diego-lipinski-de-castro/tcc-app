@@ -12,6 +12,11 @@ PODS:
   - connectivity (0.0.1):
     - Flutter
     - Reachability
+  - Crashlytics (3.14.0):
+    - Fabric (~> 1.10.2)
+  - Fabric (1.10.2)
+  - Firebase/Analytics (6.7.0):
+    - Firebase/Core
   - Firebase/Auth (6.7.0):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 6.2.3)
@@ -23,11 +28,20 @@ PODS:
   - Firebase/Firestore (6.7.0):
     - Firebase/CoreOnly
     - FirebaseFirestore (~> 1.4.4)
+  - firebase_analytics (0.0.1):
+    - Firebase/Analytics (~> 6.0)
+    - Firebase/Core
+    - Flutter
   - firebase_auth (0.0.1):
     - Firebase/Auth (~> 6.0)
     - Firebase/Core
     - Flutter
   - firebase_core (0.0.1):
+    - Firebase/Core
+    - Flutter
+  - firebase_crashlytics (0.0.1):
+    - Crashlytics
+    - Fabric
     - Firebase/Core
     - Flutter
   - FirebaseAnalytics (6.1.1):
@@ -170,8 +184,10 @@ PODS:
 DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - connectivity (from `.symlinks/plugins/connectivity/ios`)
+  - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
+  - firebase_crashlytics (from `.symlinks/plugins/firebase_crashlytics/ios`)
   - Flutter (from `.symlinks/flutter/ios-release`)
   - geolocator (from `.symlinks/plugins/geolocator/ios`)
   - google_api_availability (from `.symlinks/plugins/google_api_availability/ios`)
@@ -183,8 +199,10 @@ DEPENDENCIES:
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  trunk:
     - BoringSSL-GRPC
+    - Crashlytics
+    - Fabric
     - Firebase
     - FirebaseAnalytics
     - FirebaseAuth
@@ -214,10 +232,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/cloud_firestore/ios"
   connectivity:
     :path: ".symlinks/plugins/connectivity/ios"
+  firebase_analytics:
+    :path: ".symlinks/plugins/firebase_analytics/ios"
   firebase_auth:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
+  firebase_crashlytics:
+    :path: ".symlinks/plugins/firebase_crashlytics/ios"
   Flutter:
     :path: ".symlinks/flutter/ios-release"
   geolocator:
@@ -241,9 +263,13 @@ SPEC CHECKSUMS:
   BoringSSL-GRPC: db8764df3204ccea016e1c8dd15d9a9ad63ff318
   cloud_firestore: 2d82a8ddea1ac2f535ec891ed68b5975fe4f9509
   connectivity: 6e94255659cc86dcbef1d452ad3e0491bb1b3e75
+  Crashlytics: 540b7e5f5da5a042647227a5e3ac51d85eed06df
+  Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
   Firebase: 291d7b0a7b393f252358083b5d224884126fa46d
+  firebase_analytics: 045e7ebe7b8a4d27357168072868ff082dca15a6
   firebase_auth: 1e3b7bdd37b9fbd4ef75ba1d985b00be09e02d3d
   firebase_core: ae55ea92448ec8675d325da4db22cf3b4d58a54d
+  firebase_crashlytics: 6b8e7358dbac1359c1e29e0796adf48eddef99c9
   FirebaseAnalytics: 843c7f64a8f9c79f0d03281197ebe7bb1d58d477
   FirebaseAuth: e7f86c2dfc57281cd01f7da5e4b40e01e4510a4a
   FirebaseAuthInterop: 0ffa57668be100582bb7643d4fcb7615496c41fc
@@ -278,4 +304,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 3389836f37640698630b8f0670315d626d5f1469
 
-COCOAPODS: 1.7.1
+COCOAPODS: 1.8.4

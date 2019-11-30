@@ -49,7 +49,7 @@ class Travel {
       createdBy: data['createdBy'] ?? '',
       phone: data['phone'] ?? '',
       titleKey: data['titleKey'] ?? '',
-      hasMapsDoc: data['hasMapsDoc'] ?? false,
+      hasMapsDoc: data['hasMapsDoc'] ?? null,
     );
   }
 

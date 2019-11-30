@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
@@ -149,22 +151,41 @@ class _AddTravelPageState extends State<AddTravelPage> {
                     suffixIcon: IconButton(
                       icon: Icon(Icons.help),
                       onPressed: () {
-                        showDialog(
+                        if(Platform.isIOS) {
+                          showCupertinoDialog(
                             context: context,
-                            builder: (context) {
+                            builder: (cupertinoDialogContext) {
+                              return CupertinoAlertDialog(
+                                content: Text('O título será usado para as pessoas pesquisarem e encontraram sua excursão, pode usar o nome do evento por exemplo.'),
+                                actions: <Widget>[
+                                  CupertinoDialogAction(
+                                    child: Text('Entendi'),
+                                    onPressed: () {
+                                      Navigator.of(cupertinoDialogContext).pop();
+                                    },
+                                  )
+                                ],
+                              );
+                            }
+                          );
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (dialogContext) {
                               return AlertDialog(
                                 content: Text(
-                                    "O título será usado para as pessoas pesquisarem e encontraram sua excursão, pode usar o nome do evento por exemplo."),
+                                    'O título será usado para as pessoas pesquisarem e encontraram sua excursão, pode usar o nome do evento por exemplo.'),
                                 actions: <Widget>[
                                   FlatButton(
-                                    child: Text("Entendi"),
+                                    child: Text('Entendi'),
                                     onPressed: () {
-                                      Navigator.of(context).pop();
+                                      Navigator.of(dialogContext).pop();
                                     },
                                   )
                                 ],
                               );
                             });
+                        }
                       },
                     ),
                   ),

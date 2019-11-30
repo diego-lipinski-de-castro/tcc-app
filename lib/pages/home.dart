@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -38,7 +40,8 @@ class _HomePageState extends State<HomePage> {
   CameraPosition _initialPosition =
       CameraPosition(target: LatLng(-14.235004, -51.92528), zoom: 4);
 
-  Directions.GoogleMapsDirections _directions = Directions.GoogleMapsDirections(apiKey: "AIzaSyCHOLoxY8hwQzx_dyvDkihq9SpuQeiCGJs");
+  Directions.GoogleMapsDirections _directions = Directions.GoogleMapsDirections(
+      apiKey: "AIzaSyCHOLoxY8hwQzx_dyvDkihq9SpuQeiCGJs");
 
   Set<Marker> markers = <Marker>{};
   Set<Polyline> polylines = <Polyline>{};
@@ -56,7 +59,7 @@ class _HomePageState extends State<HomePage> {
 
   bool _loadingSheet = false;
 
-  final FirebaseAnalytics _analytics = FirebaseAnalytics();
+  FirebaseAnalytics _analytics = FirebaseAnalytics();
 
   @override
   void initState() {
@@ -108,7 +111,7 @@ class _HomePageState extends State<HomePage> {
       southwestLat,
       southwestLng,
       northeastLat,
-      northeastLng}) async {
+      northeastLng}) {
     _distance = distance;
     _duration = duration;
 
@@ -138,6 +141,8 @@ class _HomePageState extends State<HomePage> {
             southwest: LatLng(southwestLat, southwestLng),
             northeast: LatLng(northeastLat, northeastLng)),
         100));
+
+    setState(() {});
   }
 
   _loadUi(Travel travel) async {
@@ -146,9 +151,10 @@ class _HomePageState extends State<HomePage> {
         _travel = travel;
       });
 
-      await _analytics.logViewItem(itemId: travel.id, itemName: travel.titleKey, itemCategory: 'travel');
-      
-      if (travel.hasMapsDoc) {
+      await _analytics.logViewItem(
+          itemId: travel.id, itemName: travel.titleKey, itemCategory: 'travel');
+
+      if (travel.hasMapsDoc == true) {
         MapData result = await _mapDataService.get(travel.id);
 
         _updateUi(
@@ -163,12 +169,12 @@ class _HomePageState extends State<HomePage> {
             southwestLng: result.southwestLng,
             northeastLat: result.northeastLat,
             northeastLng: result.northeastLng);
-      } else {
+      } else if(travel.hasMapsDoc == null) {
         Directions.DirectionsResponse result = await _directions
             .directionsWithAddress(travel.start, travel.destiny,
                 language: "pt-br");
 
-        if(result.isOkay) {
+        if (result.isOkay) {
           _updateUi(
             distance: result.routes.first.legs.first.distance.text,
             duration: result.routes.first.legs.first.duration.text,
@@ -201,11 +207,134 @@ class _HomePageState extends State<HomePage> {
                   northeastLng: result.routes.first.bounds.northeast.lng,
                 ));
 
-            _travelService.update(travel.id);
+            _travelService.update(travel.id, true);
           });
         } else {
-          Scaffold.of(context).showSnackBar(SnackBar(content: Text('Não foi possível executar ação :(')));
+          // markers.add(Marker(
+          //     consumeTapEvents: false,
+          //     markerId: MarkerId("marker_end"),
+          //     // infoWindow: InfoWindow(title: _travel.destiny, snippet: "Ponto de destino"),
+          //     position: LatLng(result.routes.first.legs.first.endLocation.lat,
+          //         result.routes.first.legs.first.endLocation.lng)));
+
+          // _mapsController.animateCamera(CameraUpdate.zoomOut());
+
+          // _mapsController.animateCamera(CameraUpdate.newLatLng(LatLng(
+          //     result.routes.first.legs.first.endLocation.lat,
+          //     result.routes.first.legs.first.endLocation.lng)));
+
+          if (Platform.isIOS) {
+            showCupertinoDialog(
+                context: _scaffoldKey.currentContext,
+                builder: (cupertinoDialogContext) {
+                  return CupertinoAlertDialog(
+                    title: Text('Atenção!'),
+                    content: Padding(
+                      padding: EdgeInsets.all(15.0),
+                      child: Column(
+                        children: <Widget>[
+                          Text('Não foi encontrado uma rota para esta viagem! Verifique com o responsável.'),
+                          Text('Esta mensagem pode aparecer em viagens internacionais ou em caso de erro.'),
+                        ],
+                      )
+                    ),
+                    actions: <Widget>[
+                      CupertinoDialogAction(
+                        isDefaultAction: true,
+                        child: Text('Ok'),
+                        onPressed: () {
+                          Navigator.pop(cupertinoDialogContext);
+                        },
+                      )
+                    ],
+                  );
+                });
+          } else {
+            showDialog(
+              context: _scaffoldKey.currentContext,
+              builder: (dialogContext) {
+                return AlertDialog(
+                  title: Text('Atenção!'),
+                  content: Padding(
+                    padding: EdgeInsets.all(15.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text('Não foi encontrado uma rota para esta viagem! Verifique com o responsável.'),
+                        Text('Esta mensagem pode aparecer em viagens internacionais ou em caso de erro.'),
+                      ],
+                    )
+                  ),
+                  actions: <Widget>[
+                      FlatButton(
+                        child: Text('Ok'),
+                        onPressed: () {
+                          Navigator.pop(dialogContext);
+                        },
+                      )
+                    ],
+                );
+              }
+            );
+          }
+
+          _travelService.update(travel.id, false);
         }
+      } else if(travel.hasMapsDoc == false) {
+        if (Platform.isIOS) {
+            showCupertinoDialog(
+                context: _scaffoldKey.currentContext,
+                builder: (cupertinoDialogContext) {
+                  return CupertinoAlertDialog(
+                    title: Text('Atenção!'),
+                    content: Padding(
+                      padding: EdgeInsets.all(15.0),
+                      child: Column(
+                        children: <Widget>[
+                          Text('Não foi encontrado uma rota para esta viagem! Verifique com o responsável.'),
+                          Text('Esta mensagem pode aparecer em viagens internacionais ou em caso de erro.'),
+                        ],
+                      )
+                    ),
+                    actions: <Widget>[
+                      CupertinoDialogAction(
+                        isDefaultAction: true,
+                        child: Text('Ok'),
+                        onPressed: () {
+                          Navigator.pop(cupertinoDialogContext);
+                        },
+                      )
+                    ],
+                  );
+                });
+          } else {
+            showDialog(
+              context: _scaffoldKey.currentContext,
+              builder: (dialogContext) {
+                return AlertDialog(
+                  title: Text('Atenção!'),
+                  content: Padding(
+                    padding: EdgeInsets.all(15.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text('Não foi encontrado uma rota para esta viagem! Verifique com o responsável.'),
+                        Text('Esta mensagem pode aparecer em viagens internacionais ou em caso de erro.'),
+                      ],
+                    )
+                  ),
+                  actions: <Widget>[
+                      FlatButton(
+                        child: Text('Ok'),
+                        onPressed: () {
+                          Navigator.pop(dialogContext);
+                        },
+                      )
+                    ],
+                );
+              }
+            );
+          }
       }
     } catch (error) {
       print("error");
@@ -278,186 +407,7 @@ class _HomePageState extends State<HomePage> {
                       zoomGesturesEnabled: true,
                       tiltGesturesEnabled: true,
                     ),
-                    SafeArea(
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: Stack(
-                          children: <Widget>[
-                            Positioned(
-                              right: 15,
-                              top: 15,
-                              child: SizedBox(
-                                width: 40,
-                                height: 40,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius:
-                                          BorderRadius.circular(50.0)),
-                                  child: IconButton(
-                                    padding: EdgeInsets.zero,
-                                    icon: Icon(
-                                      Icons.error_outline,
-                                      color: Colors.deepPurple,
-                                      size: 30,
-                                    ),
-                                    onPressed: () {
-                                      showModalBottomSheet(
-                                          context: context,
-                                          builder: (modalSheetContext) {
-                                            return Container(
-                                              child: Wrap(
-                                                children: <Widget>[
-                                                  ListTile(
-                                                    title:
-                                                        Text('Enviar feedback'),
-                                                    onTap: () {
-                                                      Navigator.pop(
-                                                          modalSheetContext);
-
-                                                      showDialog(
-                                                          context: context,
-                                                          builder:
-                                                              (dialogContext) {
-                                                            return AlertDialog(
-                                                              title: Text(
-                                                                  'Enviar feedback'),
-                                                              content:
-                                                                  TextField(
-                                                                controller:
-                                                                    _feedbackText,
-                                                                autofocus: true,
-                                                                maxLines: 5,
-                                                                decoration:
-                                                                    InputDecoration(
-                                                                        border:
-                                                                            OutlineInputBorder()),
-                                                              ),
-                                                              actions: <Widget>[
-                                                                FlatButton(
-                                                                  child: Text(
-                                                                      'Voltar'),
-                                                                  onPressed:
-                                                                      () {
-                                                                    Navigator.pop(
-                                                                        dialogContext);
-                                                                    _feedbackText
-                                                                        .text = '';
-                                                                  },
-                                                                ),
-                                                                FlatButton(
-                                                                  child: Text(
-                                                                      'Enviar'),
-                                                                  onPressed:
-                                                                      _loadingSheet
-                                                                          ? null
-                                                                          : () async {
-                                                                              setState(() {
-                                                                                _loadingSheet = true;
-                                                                              });
-
-                                                                              bool success = await FeedbackService.send(_feedbackText.text);
-
-                                                                              setState(() {
-                                                                                _loadingSheet = false;
-                                                                              });
-
-                                                                              Navigator.pop(dialogContext);
-
-                                                                              if (success) {
-                                                                                _feedbackText.text = '';
-                                                                              }
-
-                                                                              Scaffold.of(context).showSnackBar(SnackBar(content: Text(success ? 'Recebemos seu feedback! Aguarde futuras atualizações' : 'Falha ao enviar feedback :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
-                                                                            },
-                                                                )
-                                                              ],
-                                                            );
-                                                          });
-                                                    },
-                                                  ),
-                                                  ListTile(
-                                                    title: Text(
-                                                        'Entrar em contato com o desenvolvedor'),
-                                                    onTap: () {
-                                                      Navigator.pop(
-                                                          modalSheetContext);
-
-                                                      showDialog(
-                                                          context: context,
-                                                          builder:
-                                                              (dialogContext) {
-                                                            return AlertDialog(
-                                                              title: Text(
-                                                                  'Entrar em contato'),
-                                                              content:
-                                                                  TextField(
-                                                                controller:
-                                                                    _contactText,
-                                                                autofocus: true,
-                                                                maxLines: 5,
-                                                                decoration: InputDecoration(
-                                                                    hintText:
-                                                                        'Dê uma descrição breve do motivo do contato e iremos retornar para mais detalhes.',
-                                                                    border:
-                                                                        OutlineInputBorder()),
-                                                              ),
-                                                              actions: <Widget>[
-                                                                FlatButton(
-                                                                  child: Text(
-                                                                      'Voltar'),
-                                                                  onPressed:
-                                                                      () {
-                                                                    Navigator.pop(
-                                                                        dialogContext);
-                                                                    _contactText
-                                                                        .text = '';
-                                                                  },
-                                                                ),
-                                                                FlatButton(
-                                                                  child: Text(
-                                                                      'Enviar'),
-                                                                  onPressed:
-                                                                      _loadingSheet
-                                                                          ? null
-                                                                          : () async {
-                                                                              setState(() {
-                                                                                _loadingSheet = true;
-                                                                              });
-
-                                                                              bool success = await ContactService.send(_contactText.text);
-
-                                                                              setState(() {
-                                                                                _loadingSheet = false;
-                                                                              });
-
-                                                                              Navigator.pop(dialogContext);
-
-                                                                              if (success) {
-                                                                                _contactText.text = '';
-                                                                              }
-
-                                                                              _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(success ? 'Recebemos sua mensagem. Logo entraremos em contato :)' : 'Falha ao enviar mensagem :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
-                                                                            },
-                                                                )
-                                                              ],
-                                                            );
-                                                          });
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          });
-                                    },
-                                  ),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
+                    dot(context),
                     if (_travel != null) ...[
                       SafeArea(
                         child: Container(
@@ -815,5 +765,347 @@ class _HomePageState extends State<HomePage> {
             ),
           );
         });
+  }
+
+  Widget dot(BuildContext context) {
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.topRight,
+        child: Stack(
+          children: <Widget>[
+            Positioned(
+              right: 15,
+              top: 15,
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(50.0)),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Icon(
+                      Icons.error_outline,
+                      color: Colors.deepPurple,
+                      size: 30,
+                    ),
+                    onPressed: () {
+                      if (Platform.isIOS) {
+                        showCupertinoModalPopup(
+                            context: context,
+                            builder: (cupertinoPopupContext) {
+                              return CupertinoActionSheet(
+                                actions: <Widget>[
+                                  CupertinoActionSheetAction(
+                                    child: Text('Enviar feedback'),
+                                    onPressed: () {
+                                      Navigator.pop(cupertinoPopupContext);
+
+                                      showDialog(
+                                          context: context,
+                                          builder: (dialogContext) {
+                                            return AlertDialog(
+                                              title: Text('Enviar feedback'),
+                                              content: TextField(
+                                                controller: _feedbackText,
+                                                autofocus: true,
+                                                maxLines: 5,
+                                                decoration: InputDecoration(
+                                                    border:
+                                                        OutlineInputBorder()),
+                                              ),
+                                              actions: <Widget>[
+                                                FlatButton(
+                                                  child: Text('Voltar'),
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        dialogContext);
+                                                    _feedbackText.text = '';
+                                                  },
+                                                ),
+                                                FlatButton(
+                                                  child: Text('Enviar'),
+                                                  onPressed: _loadingSheet
+                                                      ? null
+                                                      : () async {
+                                                          setState(() {
+                                                            _loadingSheet =
+                                                                true;
+                                                          });
+
+                                                          bool success =
+                                                              await FeedbackService
+                                                                  .send(
+                                                                      _feedbackText
+                                                                          .text);
+
+                                                          setState(() {
+                                                            _loadingSheet =
+                                                                false;
+                                                          });
+
+                                                          Navigator.pop(
+                                                              dialogContext);
+
+                                                          if (success) {
+                                                            _feedbackText.text =
+                                                                '';
+                                                          }
+
+                                                          Scaffold.of(context)
+                                                              .showSnackBar(SnackBar(
+                                                                  content: Text(success
+                                                                      ? 'Recebemos seu feedback, obrigado!'
+                                                                      : 'Falha ao enviar feedback :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
+                                                        },
+                                                )
+                                              ],
+                                            );
+                                          });
+                                    },
+                                  ),
+                                  CupertinoActionSheetAction(
+                                    child: Text(
+                                        'Entrar em contato com o desenvolvedor'),
+                                    onPressed: () {
+                                      Navigator.pop(cupertinoPopupContext);
+
+                                      showDialog(
+                                          context: context,
+                                          builder: (dialogContext) {
+                                            return AlertDialog(
+                                              title: Text('Entrar em contato'),
+                                              content: TextField(
+                                                controller: _contactText,
+                                                autofocus: true,
+                                                maxLines: 5,
+                                                decoration: InputDecoration(
+                                                    hintText:
+                                                        'Dê uma descrição breve do motivo do contato e iremos retornar para mais detalhes.',
+                                                    border:
+                                                        OutlineInputBorder()),
+                                              ),
+                                              actions: <Widget>[
+                                                FlatButton(
+                                                  child: Text('Voltar'),
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        dialogContext);
+                                                    _contactText.text = '';
+                                                  },
+                                                ),
+                                                FlatButton(
+                                                  child: Text('Enviar'),
+                                                  onPressed: _loadingSheet
+                                                      ? null
+                                                      : () async {
+                                                          setState(() {
+                                                            _loadingSheet =
+                                                                true;
+                                                          });
+
+                                                          bool success =
+                                                              await ContactService
+                                                                  .send(
+                                                                      _contactText
+                                                                          .text);
+
+                                                          setState(() {
+                                                            _loadingSheet =
+                                                                false;
+                                                          });
+
+                                                          Navigator.pop(
+                                                              dialogContext);
+
+                                                          if (success) {
+                                                            _contactText.text =
+                                                                '';
+                                                          }
+
+                                                          _scaffoldKey
+                                                              .currentState
+                                                              .showSnackBar(SnackBar(
+                                                                  content: Text(success
+                                                                      ? 'Recebemos sua mensagem. Logo entraremos em contato :)'
+                                                                      : 'Falha ao enviar mensagem :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
+                                                        },
+                                                )
+                                              ],
+                                            );
+                                          });
+                                    },
+                                  )
+                                ],
+                                cancelButton: CupertinoActionSheetAction(
+                                  isDestructiveAction: true,
+                                  child: Text('Voltar'),
+                                  onPressed: () {
+                                    Navigator.pop(cupertinoPopupContext);
+                                  },
+                                ),
+                              );
+                            });
+                      } else {
+                        showModalBottomSheet(
+                            context: context,
+                            builder: (modalSheetContext) {
+                              return Container(
+                                child: Wrap(
+                                  children: <Widget>[
+                                    ListTile(
+                                      title: Text('Enviar feedback'),
+                                      onTap: () {
+                                        Navigator.pop(modalSheetContext);
+
+                                        showDialog(
+                                            context: context,
+                                            builder: (dialogContext) {
+                                              return AlertDialog(
+                                                title: Text('Enviar feedback'),
+                                                content: TextField(
+                                                  controller: _feedbackText,
+                                                  autofocus: true,
+                                                  maxLines: 5,
+                                                  decoration: InputDecoration(
+                                                      border:
+                                                          OutlineInputBorder()),
+                                                ),
+                                                actions: <Widget>[
+                                                  FlatButton(
+                                                    child: Text('Voltar'),
+                                                    onPressed: () {
+                                                      Navigator.pop(
+                                                          dialogContext);
+                                                      _feedbackText.text = '';
+                                                    },
+                                                  ),
+                                                  FlatButton(
+                                                    child: Text('Enviar'),
+                                                    onPressed: _loadingSheet
+                                                        ? null
+                                                        : () async {
+                                                            setState(() {
+                                                              _loadingSheet =
+                                                                  true;
+                                                            });
+
+                                                            bool success =
+                                                                await FeedbackService.send(
+                                                                    _feedbackText
+                                                                        .text);
+
+                                                            setState(() {
+                                                              _loadingSheet =
+                                                                  false;
+                                                            });
+
+                                                            Navigator.pop(
+                                                                dialogContext);
+
+                                                            if (success) {
+                                                              _feedbackText
+                                                                  .text = '';
+                                                            }
+
+                                                            Scaffold.of(context)
+                                                                .showSnackBar(SnackBar(
+                                                                    content: Text(success
+                                                                        ? 'Recebemos seu feedback, obrigado!'
+                                                                        : 'Falha ao enviar feedback :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
+                                                          },
+                                                  )
+                                                ],
+                                              );
+                                            });
+                                      },
+                                    ),
+                                    ListTile(
+                                      title: Text(
+                                          'Entrar em contato com o desenvolvedor'),
+                                      onTap: () {
+                                        Navigator.pop(modalSheetContext);
+
+                                        showDialog(
+                                            context: context,
+                                            builder: (dialogContext) {
+                                              return AlertDialog(
+                                                title:
+                                                    Text('Entrar em contato'),
+                                                content: TextField(
+                                                  controller: _contactText,
+                                                  autofocus: true,
+                                                  maxLines: 5,
+                                                  decoration: InputDecoration(
+                                                      hintText:
+                                                          'Dê uma descrição breve do motivo do contato e iremos retornar para mais detalhes.',
+                                                      border:
+                                                          OutlineInputBorder()),
+                                                ),
+                                                actions: <Widget>[
+                                                  FlatButton(
+                                                    child: Text('Voltar'),
+                                                    onPressed: () {
+                                                      Navigator.pop(
+                                                          dialogContext);
+                                                      _contactText.text = '';
+                                                    },
+                                                  ),
+                                                  FlatButton(
+                                                    child: Text('Enviar'),
+                                                    onPressed: _loadingSheet
+                                                        ? null
+                                                        : () async {
+                                                            setState(() {
+                                                              _loadingSheet =
+                                                                  true;
+                                                            });
+
+                                                            bool success =
+                                                                await ContactService.send(
+                                                                    _contactText
+                                                                        .text);
+
+                                                            setState(() {
+                                                              _loadingSheet =
+                                                                  false;
+                                                            });
+
+                                                            Navigator.pop(
+                                                                dialogContext);
+
+                                                            if (success) {
+                                                              _contactText
+                                                                  .text = '';
+                                                            }
+
+                                                            _scaffoldKey
+                                                                .currentState
+                                                                .showSnackBar(SnackBar(
+                                                                    content: Text(success
+                                                                        ? 'Recebemos sua mensagem. Logo entraremos em contato :)'
+                                                                        : 'Falha ao enviar mensagem :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
+                                                          },
+                                                  )
+                                                ],
+                                              );
+                                            });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            });
+                      }
+                    },
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

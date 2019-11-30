@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tcc/services/auth.dart';
 import '../models/travel.dart';
@@ -26,7 +28,7 @@ class _ListTravelPageState extends State<ListTravelPage> {
   void initState() {
     super.initState();
 
-    getUser().then((_) => _refresh());
+    getUser().then((_) => _refresh(init: true));
   }
 
   Future<void> getUser() async {
@@ -41,16 +43,20 @@ class _ListTravelPageState extends State<ListTravelPage> {
     });
   }
 
-  Future<void> _refresh() async {
-    setState(() {
-      _loading = true;
-    });
+  Future<void> _refresh({init = false}) async {
+    if (init) {
+      setState(() {
+        _loading = true;
+      });
+    }
 
     List<Travel> results = await _travelService.getAllByUser();
 
     setState(() {
       _results = results;
-      _loading = false;
+      if (init) {
+        _loading = false;
+      }
     });
   }
 
@@ -70,11 +76,11 @@ class _ListTravelPageState extends State<ListTravelPage> {
               child: CircularProgressIndicator(),
             ),
           ],
-          if(!_loading && !loggedIn) ... [
-              Center(
-                child: Text("Você não está autenticado."),
-              ),
-            ],
+          if (!_loading && !loggedIn) ...[
+            Center(
+              child: Text("Você não está autenticado."),
+            ),
+          ],
           if (!_loading && loggedIn) ...[
             if (_results.length == 0) ...[
               Center(
@@ -88,44 +94,94 @@ class _ListTravelPageState extends State<ListTravelPage> {
                     padding: EdgeInsets.only(bottom: 75.0),
                     child: ListView.builder(
                         itemCount: _results.length,
-                        itemBuilder: (dialogContext, index) {
+                        itemBuilder: (itemContext, index) {
                           return GestureDetector(
                             onLongPress: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text("Confirmar"),
-                                      content: Text(
-                                          "Tem certeza que deseja apagar a excursão " +
-                                              _results.elementAt(index)?.title +
-                                              "?"),
-                                      actions: <Widget>[
-                                        FlatButton(
-                                          child: Text("Não"),
-                                          onPressed: () {
-                                            Navigator.of(dialogContext).pop();
-                                          },
-                                        ),
-                                        FlatButton(
-                                          child: Text("Sim"),
-                                          onPressed: () async {
-                                            await _travelService.delete(
-                                                _results.elementAt(index)?.id);
+                              if (Platform.isIOS) {
+                                showCupertinoDialog(
+                                    context: context,
+                                    builder: (cupertinoDialogContext) {
+                                      return CupertinoAlertDialog(
+                                        title: Text('Confirmar'),
+                                        content: Text(
+                                            'Tem certeza que deseja apagar a excursão ' +
+                                                _results
+                                                    .elementAt(index)
+                                                    ?.title +
+                                                '?'),
+                                        actions: <Widget>[
+                                          CupertinoDialogAction(
+                                            onPressed: () {
+                                              Navigator.of(
+                                                      cupertinoDialogContext)
+                                                  .pop();
+                                            },
+                                            child: Text('Não'),
+                                          ),
+                                          CupertinoDialogAction(
+                                            onPressed: () async {
+                                              await _travelService.delete(
+                                                  _results
+                                                      .elementAt(index)
+                                                      ?.id);
 
-                                            Navigator.of(dialogContext).pop();
+                                              Navigator.of(
+                                                      cupertinoDialogContext)
+                                                  .pop();
 
-                                            setState(() {});
+                                              setState(() {});
 
-                                            Scaffold.of(context).showSnackBar(
-                                                SnackBar(
-                                                    content: Text(
-                                                        'Excursão apagada.')));
-                                          },
-                                        )
-                                      ],
-                                    );
-                                  });
+                                              Scaffold.of(context).showSnackBar(
+                                                  SnackBar(
+                                                      content: Text(
+                                                          'Excursão apagada.')));
+                                            },
+                                            child: Text('Sim'),
+                                          )
+                                        ],
+                                      );
+                                    });
+                              } else {
+                                showDialog(
+                                    context: context,
+                                    builder: (dialogContext) {
+                                      return AlertDialog(
+                                        title: Text('Confirmar'),
+                                        content: Text(
+                                            'Tem certeza que deseja apagar a excursão ' +
+                                                _results
+                                                    .elementAt(index)
+                                                    ?.title +
+                                                '?'),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                            child: Text('Não'),
+                                            onPressed: () {
+                                              Navigator.of(dialogContext).pop();
+                                            },
+                                          ),
+                                          FlatButton(
+                                            child: Text('Sim'),
+                                            onPressed: () async {
+                                              await _travelService.delete(
+                                                  _results
+                                                      .elementAt(index)
+                                                      ?.id);
+
+                                              Navigator.of(dialogContext).pop();
+
+                                              setState(() {});
+
+                                              Scaffold.of(context).showSnackBar(
+                                                  SnackBar(
+                                                      content: Text(
+                                                          'Excursão apagada.')));
+                                            },
+                                          )
+                                        ],
+                                      );
+                                    });
+                              }
                             },
                             child: Container(
                                 margin: EdgeInsets.only(

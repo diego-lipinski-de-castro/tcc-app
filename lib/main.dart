@@ -8,8 +8,7 @@ import 'package:tcc/pages/profile.dart';
 import 'pages/home.dart';
 
 void main() {
-  // Crashlytics.instance.enableInDevMode = true;
-
+  Crashlytics.instance.enableInDevMode = true;
   FlutterError.onError = Crashlytics.instance.recordFlutterError;
   
   // Crashlytics.instance.log('');
@@ -24,7 +23,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // analytics.logAppOpen();
-    // analytics.logEvent();
     // analytics.setUserId(id);
     // analytics.setUserProperty();
     // analytics.setCurrentScreen();

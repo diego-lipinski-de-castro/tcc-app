@@ -8,9 +8,9 @@ class TravelService {
   static final Firestore _db = Firestore.instance;
   static final collection = _db.collection(path);
 
-  Future<bool> update(String docID) async {
+  Future<bool> update(String docID, dynamic status) async {
     try {
-      await collection.document(docID).updateData({'hasMapsDoc': true});
+      await collection.document(docID).updateData({'hasMapsDoc': status});
 
       return true;
     } catch (error) {
