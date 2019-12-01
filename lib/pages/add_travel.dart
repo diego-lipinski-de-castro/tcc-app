@@ -116,7 +116,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
         Navigator.of(context).pop();
       } else {
         _scaffoldKey.currentState.showSnackBar(
-            SnackBar(content: Text("Preencha todos os campos obrigatórios!")));
+            SnackBar(content: Text('Preencha todos os campos obrigatórios!')));
       }
     }
   }
@@ -147,7 +147,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
                   autocorrect: false,
                   decoration: InputDecoration(
                     hasFloatingPlaceholder: false,
-                    labelText: "Título (nome do evento)",
+                    labelText: 'Título (nome do evento)',
                     suffixIcon: IconButton(
                       icon: Icon(Icons.help),
                       onPressed: () {
@@ -247,7 +247,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
                         readOnly: true,
                         decoration: InputDecoration(
                             hasFloatingPlaceholder: false,
-                            labelText: "Destino (localização do evento)",
+                            labelText: 'Destino (localização do evento)',
                             suffixIcon: Icon(Icons.location_on)),
                       ),
                     ),
@@ -354,7 +354,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
                         readOnly: true,
                         decoration: InputDecoration(
                             hasFloatingPlaceholder: false,
-                            labelText: "Data e horário de volta",
+                            labelText: 'Data e horário de volta',
                             suffixIcon: Icon(Icons.calendar_today)),
                       ),
                     ),
@@ -375,7 +375,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                       hasFloatingPlaceholder: false,
-                      labelText: "Número total de vagas"),
+                      labelText: 'Número total de vagas'),
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 30.0),
@@ -392,7 +392,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                       hasFloatingPlaceholder: false,
-                      labelText: "Preço da excursão"),
+                      labelText: 'Preço da excursão'),
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 30.0),
@@ -404,7 +404,7 @@ class _AddTravelPageState extends State<AddTravelPage> {
                   maxLines: 8,
                   textInputAction: TextInputAction.done,
                   decoration: InputDecoration(
-                      hasFloatingPlaceholder: false, labelText: "Descrição"),
+                      hasFloatingPlaceholder: false, labelText: 'Descrição'),
                 ),
                 Padding(
                   padding: EdgeInsets.only(bottom: 75.0),
