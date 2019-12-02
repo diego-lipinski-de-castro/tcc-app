@@ -119,6 +119,7 @@ class _ListTravelPageState extends State<ListTravelPage> {
                                             child: Text('Não'),
                                           ),
                                           CupertinoDialogAction(
+                                            isDefaultAction: true,
                                             onPressed: () async {
                                               await _travelService.delete(
                                                   _results

@@ -3,7 +3,9 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:tcc/utils/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -292,7 +294,7 @@ class _HomePageState extends State<HomePage> {
                       child: Column(
                         children: <Widget>[
                           Text('Não foi encontrado uma rota para esta viagem! Verifique com o responsável.'),
-                          Text('Esta mensagem pode aparecer em viagens internacionais ou em caso de erro.'),
+                          Text('Esta mensagem pode aparecer em viagens internacionais.'),
                         ],
                       )
                     ),
@@ -337,43 +339,227 @@ class _HomePageState extends State<HomePage> {
           }
       }
     } catch (error) {
-      print("error");
+      print('error');
       print(error);
     }
   }
 
   _openWhats(String phoneNumber, String title, String travelId) async {
-    final text =
-        Uri.encodeFull('Olá, ainda possui vagas para a excursão $title?');
-
-    String whatsUrl = 'https://wa.me/$phoneNumber/?text=$text';
-    String url = 'tel:$phoneNumber';
-
     try {
-      bool canWhats = await canLaunch(whatsUrl);
+      _copy() {
+        Clipboard.setData(ClipboardData(text: phoneNumber));
+      }
 
-      if (canWhats) {
-        _analytics.logShare(
-            contentType: 'travel', itemId: travelId, method: 'whatsapp');
+      _sms() async {
+        String url = 'sms:$phoneNumber';
+                    
+        bool canSms = await canLaunch(url);
 
-        await launch(whatsUrl);
-      } else {
-        bool canPhone = await canLaunch(url);
-
-        if (canPhone) {
-          _analytics.logShare(
-              contentType: 'travel', itemId: travelId, method: 'phone');
+        if (canSms) {
+          _analytics.logShare(contentType: 'travel', itemId: travelId, method: 'sms');
 
           await launch(url);
         } else {
           throw Error();
         }
       }
+
+      _discar() async {
+        String url = 'tel:$phoneNumber';
+                    
+        bool canPhone = await canLaunch(url);
+
+        if (canPhone) {
+          _analytics.logShare(contentType: 'travel', itemId: travelId, method: 'phone');
+
+          await launch(url);
+        } else {
+          throw Error();
+        }
+      }
+
+      _whats() async {
+        final text = Uri.encodeFull('Olá, ainda possui vagas para a excursão $title?');
+        String whatsUrl = 'https://wa.me/$phoneNumber/?text=$text';
+
+        bool canWhats = await canLaunch(whatsUrl);
+
+        if(canWhats) {
+          _analytics.logShare(contentType: 'travel', itemId: travelId, method: 'whatsapp');
+
+          await launch(whatsUrl);
+        } else {
+          throw Error();
+        }
+      }
+
+      if(Platform.isIOS) {
+        showCupertinoModalPopup(
+          context: _scaffoldKey.currentContext,
+          builder: (cupertinoPopupContext) {
+            return CupertinoActionSheet(
+              title: Text(phoneNumber, style: TextStyle(
+                fontSize: 20.0
+              ),),
+              actions: <Widget>[
+                CupertinoActionSheetAction(
+                  child: Text('Copiar'),
+                  onPressed: () {
+                    Navigator.pop(cupertinoPopupContext);
+                    _copy();
+                  },
+                ),
+                CupertinoActionSheetAction(
+                  child: Text('Discar'),
+                  onPressed: () {
+                    Navigator.pop(cupertinoPopupContext);
+                    _discar();
+                  },
+                ),
+                CupertinoActionSheetAction(
+                  child: Text('Enviar SMS'),
+                  onPressed: () {
+                    Navigator.pop(cupertinoPopupContext);
+                    _sms();
+                  },
+                ),
+                CupertinoActionSheetAction(
+                  // isDefaultAction: true,
+                  child: Text('Abrir no whatsapp'),
+                  onPressed: () {
+                    Navigator.pop(cupertinoPopupContext);
+                    _whats();
+                  },
+                ),
+                CupertinoActionSheetAction(
+                  isDestructiveAction: true,
+                  child: Text('Voltar'),
+                  onPressed: () {
+                    Navigator.pop(cupertinoPopupContext);
+                  },
+                )
+              ],
+            );
+          }
+        );
+      } else {
+        showModalBottomSheet(
+          context: _scaffoldKey.currentContext,
+          builder: (modalSheetContext) {
+            return Container(
+              child: Wrap(
+                children: <Widget>[
+                  ListTile(
+                    title: Text(phoneNumber, style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold
+                    ),),
+                  ),
+                  ListTile(
+                    title: Text('Copiar'),
+                    onTap: () {
+                      Navigator.pop(modalSheetContext);
+                      _copy();
+                    },
+                  ),
+                  ListTile(
+                    title: Text('Discar'),
+                    onTap: () {
+                      Navigator.pop(modalSheetContext);
+                      _discar();
+                    },
+                  ),
+                  ListTile(
+                    title: Text('Enviar SMS'),
+                    onTap: () {
+                      Navigator.pop(modalSheetContext);
+                      _sms();
+                    },
+                  ),
+                  ListTile(
+                    title: Text('Abrir no whatsapp'),
+                    onTap: () {
+                      Navigator.pop(modalSheetContext);
+                      _whats();
+                    },
+                  )
+                ],
+              ),
+            );
+          }
+        );
+      }
+
     } catch (error) {
       print(error);
+      Logger.errorEvent(error);
+
       Scaffold.of(context).showSnackBar(
           SnackBar(content: Text('Não foi possível executar ação :(')));
     }
+  }
+
+  _sendFeedback(BuildContext context) async {
+    setState(() {
+      _loadingSheet =
+          true;
+    });
+
+    bool success =
+        await FeedbackService.send(
+            _feedbackText
+                .text);
+
+    setState(() {
+      _loadingSheet =
+          false;
+    });
+
+    Navigator.pop(
+        context);
+
+    if (success) {
+      _feedbackText
+          .text = '';
+    }
+
+    Scaffold.of(context)
+        .showSnackBar(SnackBar(
+            content: Text(success
+                ? 'Recebemos seu feedback, obrigado!'
+                : 'Falha ao enviar feedback :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
+  }
+
+  _sendContact(BuildContext context) async {
+    setState(() {
+      _loadingSheet =
+          true;
+    });
+
+    bool success =
+        await ContactService.send(
+            _contactText
+                .text);
+
+    setState(() {
+      _loadingSheet =
+          false;
+    });
+
+    Navigator.pop(
+        context);
+
+    if (success) {
+      _contactText
+          .text = '';
+    }
+
+    _scaffoldKey
+        .currentState
+        .showSnackBar(SnackBar(
+            content: Text(success
+                ? 'Recebemos sua mensagem. Logo entraremos em contato :)'
+                : 'Falha ao enviar mensagem :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
   }
 
   @override
@@ -826,39 +1012,11 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                                 FlatButton(
                                                   child: Text('Enviar'),
-                                                  onPressed: _loadingSheet
-                                                      ? null
-                                                      : () async {
-                                                          setState(() {
-                                                            _loadingSheet =
-                                                                true;
-                                                          });
-
-                                                          bool success =
-                                                              await FeedbackService
-                                                                  .send(
-                                                                      _feedbackText
-                                                                          .text);
-
-                                                          setState(() {
-                                                            _loadingSheet =
-                                                                false;
-                                                          });
-
-                                                          Navigator.pop(
-                                                              dialogContext);
-
-                                                          if (success) {
-                                                            _feedbackText.text =
-                                                                '';
-                                                          }
-
-                                                          Scaffold.of(context)
-                                                              .showSnackBar(SnackBar(
-                                                                  content: Text(success
-                                                                      ? 'Recebemos seu feedback, obrigado!'
-                                                                      : 'Falha ao enviar feedback :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
-                                                        },
+                                                  onPressed: () {
+                                                    if(!_loadingSheet) {
+                                                      _sendFeedback(dialogContext);
+                                                    }
+                                                  }
                                                 )
                                               ],
                                             );
@@ -897,40 +1055,11 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                                 FlatButton(
                                                   child: Text('Enviar'),
-                                                  onPressed: _loadingSheet
-                                                      ? null
-                                                      : () async {
-                                                          setState(() {
-                                                            _loadingSheet =
-                                                                true;
-                                                          });
-
-                                                          bool success =
-                                                              await ContactService
-                                                                  .send(
-                                                                      _contactText
-                                                                          .text);
-
-                                                          setState(() {
-                                                            _loadingSheet =
-                                                                false;
-                                                          });
-
-                                                          Navigator.pop(
-                                                              dialogContext);
-
-                                                          if (success) {
-                                                            _contactText.text =
-                                                                '';
-                                                          }
-
-                                                          _scaffoldKey
-                                                              .currentState
-                                                              .showSnackBar(SnackBar(
-                                                                  content: Text(success
-                                                                      ? 'Recebemos sua mensagem. Logo entraremos em contato :)'
-                                                                      : 'Falha ao enviar mensagem :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
-                                                        },
+                                                  onPressed: () {
+                                                    if(_loadingSheet) {
+                                                      _sendContact(dialogContext);
+                                                    }
+                                                  }
                                                 )
                                               ],
                                             );
@@ -983,38 +1112,11 @@ class _HomePageState extends State<HomePage> {
                                                   ),
                                                   FlatButton(
                                                     child: Text('Enviar'),
-                                                    onPressed: _loadingSheet
-                                                        ? null
-                                                        : () async {
-                                                            setState(() {
-                                                              _loadingSheet =
-                                                                  true;
-                                                            });
-
-                                                            bool success =
-                                                                await FeedbackService.send(
-                                                                    _feedbackText
-                                                                        .text);
-
-                                                            setState(() {
-                                                              _loadingSheet =
-                                                                  false;
-                                                            });
-
-                                                            Navigator.pop(
-                                                                dialogContext);
-
-                                                            if (success) {
-                                                              _feedbackText
-                                                                  .text = '';
-                                                            }
-
-                                                            Scaffold.of(context)
-                                                                .showSnackBar(SnackBar(
-                                                                    content: Text(success
-                                                                        ? 'Recebemos seu feedback, obrigado!'
-                                                                        : 'Falha ao enviar feedback :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
-                                                          },
+                                                    onPressed: () {
+                                                      if(!_loadingSheet) {
+                                                        _sendFeedback(dialogContext);
+                                                      }
+                                                    }
                                                   )
                                                 ],
                                               );
@@ -1054,39 +1156,11 @@ class _HomePageState extends State<HomePage> {
                                                   ),
                                                   FlatButton(
                                                     child: Text('Enviar'),
-                                                    onPressed: _loadingSheet
-                                                        ? null
-                                                        : () async {
-                                                            setState(() {
-                                                              _loadingSheet =
-                                                                  true;
-                                                            });
-
-                                                            bool success =
-                                                                await ContactService.send(
-                                                                    _contactText
-                                                                        .text);
-
-                                                            setState(() {
-                                                              _loadingSheet =
-                                                                  false;
-                                                            });
-
-                                                            Navigator.pop(
-                                                                dialogContext);
-
-                                                            if (success) {
-                                                              _contactText
-                                                                  .text = '';
-                                                            }
-
-                                                            _scaffoldKey
-                                                                .currentState
-                                                                .showSnackBar(SnackBar(
-                                                                    content: Text(success
-                                                                        ? 'Recebemos sua mensagem. Logo entraremos em contato :)'
-                                                                        : 'Falha ao enviar mensagem :( verifique sua conexão com a internet e tente novamente em alguns minutos.')));
-                                                          },
+                                                    onPressed: () {
+                                                      if(_loadingSheet) {
+                                                        _sendContact(dialogContext);
+                                                      }
+                                                    }
                                                   )
                                                 ],
                                               );

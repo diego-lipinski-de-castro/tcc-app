@@ -1,7 +1,7 @@
-import 'dart:io';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:tcc/utils/logger.dart';
 
 class AuthService {
   static final AuthService _authService = AuthService._internal();
@@ -106,19 +106,8 @@ class AuthService {
 
       return true;
     } catch (error) {
-
-      await _analytics.logEvent(name: 'google-signin-error', parameters: {
-        'message': error.toString(),
-        'environment': Platform.environment.toString(),
-        'operatingSystem': Platform.operatingSystem.toString(),
-        'localeName': Platform.localeName.toString(),
-        'localHostname': Platform.localHostname.toString(),
-        'operatingSystemVersion': Platform.operatingSystemVersion.toString(),
-        'packageConfig': Platform.packageConfig.toString(),
-        'version': Platform.version.toString()
-      });
-
       print(error);
+      Logger.errorEvent(error);
       return false;
     }
   }
