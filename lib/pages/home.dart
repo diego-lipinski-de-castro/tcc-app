@@ -873,7 +873,7 @@ class _HomePageState extends State<HomePage> {
                         FloatingActionButton.extended(
                           heroTag: null,
                           elevation: 4.0,
-                          label: const Text('Quero'),
+                          label: const Text('Contato'),
                           icon: const Icon(Icons.send),
                           onPressed: () {
                             _openWhats(
